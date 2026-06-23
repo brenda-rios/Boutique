@@ -36,5 +36,7 @@ public class CategoriaController {
         }
         categoriaService.guardar(categoria);
         return "redirect:/rutaCategorias/listar";
+        //return "redirect:/rutaCategorias/listar";
+    
     }
 }
