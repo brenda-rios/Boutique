@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Catálogo Tallas</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+	<div th:replace="~{fragmentos :: menu}"></div>
+	<div class="container mt-4">
+		<h1>Catálogo de Tallas</h1>
+		<a th:href="@{/rutaTallas/nuevo}" class="btn btn-primary mb-3">➕ Nueva Talla</a>
+		<table class="table table-bordered table-striped">
+			<thead class="table-dark">
+				<tr>
+					<th>Nombre de la Talla</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="talla : ${tallas}">
+					<td th:text="${talla.nombre}"></td>
+					<td>
+						<a th:href="@{'/rutaTallas/editar/' + ${talla.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
+						<a th:href="@{'/rutaTallas/eliminar/' + ${talla.uuid}}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás Seguro?')">❌ Eliminar</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
