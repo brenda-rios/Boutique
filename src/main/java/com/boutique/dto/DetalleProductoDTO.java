@@ -18,5 +18,43 @@ public class DetalleProductoDTO {
     @Min(value = 1, message = "El precio debe ser mayor a 0")
     private Float precio;
     private UUID uuid;
+	public Integer getIdProducto() {
+		return idProducto;
+	}
+	public void setIdProducto(Integer idProducto) {
+		this.idProducto = idProducto;
+	}
+	public Integer getIdTalla() {
+		return idTalla;
+	}
+	public void setIdTalla(Integer idTalla) {
+		this.idTalla = idTalla;
+	}
+	public Integer getIdColor() {
+		return idColor;
+	}
+	public void setIdColor(Integer idColor) {
+		this.idColor = idColor;
+	}
+	public Integer getCantidad() {
+		return cantidad;
+	}
+	public void setCantidad(Integer cantidad) {
+		this.cantidad = cantidad;
+	}
+	public Float getPrecio() {
+		return precio;
+	}
+	public void setPrecio(Float precio) {
+		this.precio = precio;
+	}
+	public UUID getUuid() {
+		return uuid;
+	}
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+    
+    
 
 }
