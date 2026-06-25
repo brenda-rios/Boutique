@@ -2,6 +2,8 @@ package com.boutique.service;
 
 
 import java.util.List;
+import java.util.Optional;
+import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
@@ -10,6 +12,8 @@ import org.springframework.stereotype.Service;
 import com.boutique.dto.CategoriaDTO;
 import com.boutique.model.Categoria;
 import com.boutique.repo.CategoriaRepo;
+
+import jakarta.persistence.EntityNotFoundException;
 
 @Service
 public class CategoriaService {
@@ -28,5 +32,33 @@ public class CategoriaService {
     public void guardar(CategoriaDTO categoria) {
         categoriaRepo.save(mapper.map(categoria, Categoria.class));
     }
+    
+    public void actualizar(CategoriaDTO categoria) {
+		Optional<Categoria> OptCategoria = categoriaRepo.findByUuid(categoria.getUuid());
+		if (OptCategoria.isPresent()) {
+			mapper.map(categoria, OptCategoria.get());
+			categoriaRepo.save(OptCategoria.get());
+		} else {
+			throw new EntityNotFoundException("Categoría no encontrada con UUID: " + categoria.getUuid());
+		}	
+	}
+	
+	public void borrar(UUID uuid) {
+		Optional<Categoria> OptCategoria = categoriaRepo.findByUuid(uuid);
+		if (OptCategoria.isPresent()) {
+			categoriaRepo.delete(OptCategoria.get());
+		} else {
+			throw new EntityNotFoundException("Categoría no encontrada con UUID: " + uuid);
+		}
+	}
+	
+	public CategoriaDTO obtenerCategoriaUUID(UUID uuid) {
+		Optional<Categoria> OptCategoria = categoriaRepo.findByUuid(uuid);
+		if (OptCategoria.isPresent()) {
+			return mapper.map(OptCategoria.get(), CategoriaDTO.class);
+		} else {
+			throw new EntityNotFoundException("Categoría no encontrada con UUID: " + uuid);
+		}
+	}
 
 }

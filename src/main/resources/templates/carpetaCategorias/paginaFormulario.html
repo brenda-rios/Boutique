@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Formulario Categoría</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+	<div th:replace="~{fragmentos :: menu}"></div>
+	<div class="container mt-4">
+		<h1 th:text="${uuid} != null ? 'Editar Categoría' : 'Nueva Categoría'" class="mb-4"></h1>
+		<form th:action="${uuid} == null ? @{/rutaCategorias/guardar} : @{/rutaCategorias/actualizar}" method="post" th:object="${categoria}">
+			<input type="hidden" name="uuid" th:value="${uuid}" />
+
+			<div class="mb-3">
+				<label class="form-label">Nombre:</label>
+				<input type="text" class="form-control" th:field="*{nombre}" />
+				<div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">Error</div>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Descripción:</label>
+				<input type="text" class="form-control" th:field="*{descripcion}" />
+				<div class="text-danger" th:if="${#fields.hasErrors('descripcion')}" th:errors="*{descripcion}">Error</div>
+			</div>
+
+			<button type="submit" class="btn btn-success">Guardar</button>
+			<a th:href="@{/rutaCategorias/listar}" class="btn btn-secondary">Cancelar</a>
+		</form>
+	</div>
+</body>
+</html>

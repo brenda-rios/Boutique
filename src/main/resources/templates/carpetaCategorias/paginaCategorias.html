@@ -1,0 +1,33 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Catálogo Categorías</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+	<div th:replace="~{fragmentos :: menu}"></div>
+	<div class="container mt-4">
+		<h1>Catálogo de Categorías</h1>
+		<a th:href="@{/rutaCategorias/nuevo}" class="btn btn-primary mb-3">➕ Nueva Categoría</a>
+		<table class="table table-bordered table-striped">
+			<thead class="table-dark">
+				<tr>
+					<th>Nombre</th>
+					<th>Descripción</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="cat : ${categorias}">
+					<td th:text="${cat.nombre}"></td>
+					<td th:text="${cat.descripcion}"></td>
+					<td>
+						<a th:href="@{'/rutaCategorias/editar/' + ${cat.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
+						<a th:href="@{'/rutaCategorias/eliminar/' + ${cat.uuid}}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás Seguro?')">❌ Eliminar</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
