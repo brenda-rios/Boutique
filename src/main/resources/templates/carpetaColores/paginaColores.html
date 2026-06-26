@@ -1,0 +1,31 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Catálogo Colores</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+	<div th:replace="~{fragmentos :: menu}"></div>
+	<div class="container mt-4">
+		<h1>Catálogo de Colores</h1>
+		<a th:href="@{/rutaColores/nuevo}" class="btn btn-primary mb-3">➕ Nuevo Color</a>
+		<table class="table table-bordered table-striped">
+			<thead class="table-dark">
+				<tr>
+					<th>Nombre del Color</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="color : ${colores}">
+					<td th:text="${color.nombre}"></td>
+					<td>
+						<a th:href="@{'/rutaColores/editar/' + ${color.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
+						<a th:href="@{'/rutaColores/eliminar/' + ${color.uuid}}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás Seguro?')">❌ Eliminar</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
