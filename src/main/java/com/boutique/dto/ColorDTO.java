@@ -8,4 +8,8 @@ public class ColorDTO {
 	@NotBlank(message = "El nombre del color es obligatorio")
     private String nombre;
     private UUID uuid;
+	public UUID getUuid() {
+		// TODO Auto-generated method stub
+		return null;
+	}
 }
