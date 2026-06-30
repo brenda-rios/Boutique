@@ -10,6 +10,17 @@ public class ColorDTO {
     private UUID uuid;
 	public UUID getUuid() {
 		// TODO Auto-generated method stub
-		return null;
+		return uuid;
 	}
+	public String getNombre() {
+		return nombre;
+	}
+	public void setNombre(String nombre) {
+		this.nombre = nombre;
+	}
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+	
+	
 }
