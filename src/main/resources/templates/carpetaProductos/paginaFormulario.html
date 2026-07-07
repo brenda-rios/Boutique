@@ -1,0 +1,48 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Formulario Producto</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+	<div th:replace="~{fragmentos :: menu}"></div>
+	<div class="container mt-4">
+		
+		<h1 th:text="${uuid != null ? 'Editar Producto' : 'Nuevo Producto'}" class="mb-4"></h1>
+	
+		<form th:action="${uuid == null ? '/rutaProductos/guardar' : '/rutaProductos/actualizar'}" method="post" th:object="${producto}">
+			<!-- Mismo formato de input oculto para el uuid que usaron tus compañeros -->
+			<input type="hidden" name="uuid" th:value="${uuid}" />
+			<!-- Dejamos el ID oculto del objeto para que Spring sepa qué registro actualizar -->
+			<input type="hidden" th:field="*{idProducto}" />
+
+			<div class="mb-3">
+				<label class="form-label">Nombre del Producto:</label>
+				<input type="text" class="form-control" th:field="*{nombre}" />
+				<div class="text-danger" th:if="${#fields.hasErrors('nombre')}" th:errors="*{nombre}">Error</div>
+			</div>
+
+			<div class="mb-3">
+				<label class="form-label">Descripción:</label>
+				<input type="text" class="form-control" th:field="*{descripcion}" />
+			</div>
+
+			<div class="mb-3">
+			    <label class="form-label">Categoría:</label>
+			    <!-- Asegúrate de que th:field use el asterisco para el DTO -->
+				<select class="form-select" th:field="*{idCategoria}">
+				    <option value="">-- Selecciona una categoría --</option>
+				    <option th:each="c : ${listaCategorias}" 
+				            th:value="${c.idCategoria}" 
+				            th:text="${c.nombre}">
+				    </option>
+				</select>
+			    <div class="text-danger" th:if="${#fields.hasErrors('idCategoria')}" th:errors="*{idCategoria}">Error</div>
+			</div>
+
+			<button type="submit" class="btn btn-success">Guardar</button>
+			<a th:href="@{/rutaProductos/listar}" class="btn btn-secondary">Cancelar</a>
+		</form>
+	</div>
+</body>
+</html>

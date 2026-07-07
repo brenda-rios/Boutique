@@ -32,7 +32,7 @@ public class ColorController {
     @GetMapping("/nuevo")
     public String metodoNuevo(Model model) {
         model.addAttribute("color", new ColorDTO()); // El DTO vacío ya viaja con su uuid en null por defecto
-        return "carpetaColores/paginaFormulario";
+        return "/carpetaColores/paginaFormulario";
     }
 
     @PostMapping("/guardar")
@@ -56,7 +56,7 @@ public class ColorController {
 	@GetMapping("/editar/{uuid}")
 	public String metodoEditar(Model model, @PathVariable UUID uuid) {
 		model.addAttribute("color", colorService.obtenerColorUUID(uuid)); // El DTO recuperado ya trae su UUID dentro
-		return "carpetaColores/paginaFormulario";
+		return "/carpetaColores/paginaFormulario";
 	}
 	
 	@GetMapping("/eliminar/{uuid}")

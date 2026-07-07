@@ -1,0 +1,42 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+	<title>Catálogo Productos</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+	<div th:replace="~{fragmentos :: menu}"></div>
+	<div class="container mt-4">
+		<h1>Catálogo de Productos</h1>
+		<a th:href="@{/rutaProductos/nuevo}" class="btn btn-primary mb-3" style="background-color: rgb(139, 29, 28);">➕ Nuevo Producto</a>
+		
+		<table class="table table-bordered table-striped">
+			<thead class="table-dark">
+				<tr>
+					<th>Nombre del Producto</th>
+					<th>Descripción</th>
+					<th>Categoría</th>
+					<th>Acciones</th>
+				</tr>
+			</thead>
+			<tbody>
+				<tr th:each="prod : ${productos}">
+					<td th:text="${prod.nombre}"></td>
+					<td th:text="${prod.descripcion}"></td>
+					<!-- Muestra el nombre de la categoría asignada -->
+					<td th:text="${prod.categoria.nombre}"></td>
+					<td>
+						<!-- Mismo estilo de enlace que usaron en categorías -->
+						<a th:href="@{'/rutaProductos/editar/' + ${prod.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
+						<a th:href="@{/rutaProductos/eliminar/{uuid}(uuid=${p?.uuid})}" 
+						   class="btn btn-danger btn-sm"
+						   onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">
+						   🗑️ Eliminar
+						</a>
+					</td>
+				</tr>
+			</tbody>
+		</table>
+	</div>
+</body>
+</html>
