@@ -1,0 +1,39 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Detalles de Pedidos</title>
+</head>
+<body>
+    <div th:replace="~{fragmentos :: nav}"></div>
+    
+    <div class="container mt-4">
+        <h2>Listado de Detalles de Pedido</h2>
+        <a th:href="@{/detallePedido/nuevo}" class="btn btn-primary mb-3">Nuevo Detalle</a>
+        
+        <table class="table table-striped table-bordered">
+            <thead class="table-dark">
+                <tr>
+                    <th>ID</th>
+                    <th>Pedido</th>
+                    <th>Producto (ID Inventario)</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unitario</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="det : ${detalles}">
+                    <td th:text="${det.idDetPed}"></td>
+                    <td th:text="${det.pedido != null ? 'Pedido #' + det.pedido.idPedido : 'N/A'}"></td>
+                    <!-- Aquí mostramos datos enlazados a través de las llaves foráneas -->
+                    <td th:text="${det.detalleProducto != null ? det.detalleProducto.producto.nombre + ' - ' + det.detalleProducto.talla.nombre + ' - ' + det.detalleProducto.color.nombre : 'N/A'}"></td>
+                    <td th:text="${det.cantidad}"></td>
+                    <td th:text="'$' + ${det.precioUnitario}"></td>
+                    <td th:text="'$' + ${det.subtotal}"></td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
+</body>
+</html>

@@ -1,0 +1,47 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <meta charset="UTF-8">
+    <title>Formulario Detalle Pedido</title>
+</head>
+<body>
+    <div th:replace="~{fragmentos :: nav}"></div>
+    
+    <div class="container mt-4">
+        <h2>Guardar Detalle de Pedido</h2>
+        
+        <form th:action="@{/detallePedido/guardar}" th:object="${detallePedido}" method="post">
+            <input type="hidden" th:field="*{idDetPed}">
+
+            <div class="mb-3">
+                <label class="form-label">Pedido:</label>
+                <select class="form-select" th:field="*{idPedido}" required>
+                    <option value="">-- Seleccione un Pedido --</option>
+                    <option th:each="p : ${listaPedidos}" th:value="${p.idPedido}" th:text="${'Pedido #' + p.idPedido}"></option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Producto en Inventario (Detalle Producto):</label>
+                <select class="form-select" th:field="*{idDetProd}" required>
+                    <option value="">-- Seleccione un Producto --</option>
+                    <option th:each="dp : ${listaDetallesProd}" th:value="${dp.idDetProd}" th:text="${dp.producto.nombre + ' - ' + dp.talla.nombre + ' - ' + dp.color.nombre}"></option>
+                </select>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Cantidad:</label>
+                <input type="number" class="form-control" th:field="*{cantidad}" required>
+            </div>
+
+            <div class="mb-3">
+                <label class="form-label">Precio Unitario ($):</label>
+                <input type="number" step="0.01" class="form-control" th:field="*{precioUnitario}" required>
+            </div>
+
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a th:href="@{/detallePedido/listar}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
+</body>
+</html>
