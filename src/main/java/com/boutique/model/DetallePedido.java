@@ -16,9 +16,9 @@ public class DetallePedido {
     @GeneratedValue(strategy = GenerationType.IDENTITY)
     private Long idDetPed;
 
-    /*@ManyToOne
+    @ManyToOne
     @JoinColumn(name = "idPedido")
-    private Pedido pedido;*/
+    private Pedido pedido;
 
     @ManyToOne
     @JoinColumn(name = "idDetProd")
@@ -34,5 +34,65 @@ public class DetallePedido {
     public void prePersist() {
         this.uuid = UUID.randomUUID();
     }
+    
+    
+    
+
+	public Long getIdDetPed() {
+		return idDetPed;
+	}
+
+	public void setIdDetPed(Long idDetPed) {
+		this.idDetPed = idDetPed;
+	}
+
+	public Pedido getPedido() {
+		return pedido;
+	}
+
+	public void setPedido(Pedido pedido) {
+		this.pedido = pedido;
+	}
+
+	public DetalleProducto getDetalleProducto() {
+		return detalleProducto;
+	}
+
+	public void setDetalleProducto(DetalleProducto detalleProducto) {
+		this.detalleProducto = detalleProducto;
+	}
+
+	public Integer getCantidad() {
+		return cantidad;
+	}
+
+	public void setCantidad(Integer cantidad) {
+		this.cantidad = cantidad;
+	}
+
+	public Float getPrecioUnitario() {
+		return precioUnitario;
+	}
+
+	public void setPrecioUnitario(Float precioUnitario) {
+		this.precioUnitario = precioUnitario;
+	}
+
+	public Float getSubtotal() {
+		return subtotal;
+	}
+
+	public void setSubtotal(Float subtotal) {
+		this.subtotal = subtotal;
+	}
+
+	public UUID getUuid() {
+		return uuid;
+	}
+
+	public void setUuid(UUID uuid) {
+		this.uuid = uuid;
+	}
+    
 
 }

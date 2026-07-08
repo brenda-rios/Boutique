@@ -1,15 +1,15 @@
 <!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-    <meta charset="UTF-8">
     <title>Detalles de Pedidos</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
 </head>
 <body>
-    <div th:replace="~{fragmentos :: nav}"></div>
+    <div th:replace="~{fragmentos :: menu}"></div>
     
     <div class="container mt-4">
         <h2>Listado de Detalles de Pedido</h2>
-        <a th:href="@{/detallePedido/nuevo}" class="btn btn-primary mb-3">Nuevo Detalle</a>
+        <a th:href="@{/rutaDetallePedido/nuevo}" class="btn btn-primary mb-3" style="background-color: rgb(139, 29, 28);">Nuevo Detalle</a>
         
         <table class="table table-striped table-bordered">
             <thead class="table-dark">

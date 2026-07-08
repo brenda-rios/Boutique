@@ -3,14 +3,15 @@
 <head>
     <meta charset="UTF-8">
     <title>Formulario Detalle Pedido</title>
+	<div th:replace="~{fragmentos :: bootstrap}"></div>
 </head>
 <body>
-    <div th:replace="~{fragmentos :: nav}"></div>
+    <div th:replace="~{fragmentos :: menu}"></div>
     
     <div class="container mt-4">
         <h2>Guardar Detalle de Pedido</h2>
         
-        <form th:action="@{/detallePedido/guardar}" th:object="${detallePedido}" method="post">
+        <form th:action="@{/rutaDetallePedido/guardar}" th:object="${detallePedido}" method="post">
             <input type="hidden" th:field="*{idDetPed}">
 
             <div class="mb-3">
@@ -40,7 +41,7 @@
             </div>
 
             <button type="submit" class="btn btn-success">Guardar</button>
-            <a th:href="@{/detallePedido/listar}" class="btn btn-secondary">Cancelar</a>
+            <a th:href="@{/rutaDetallePedido/listar}" class="btn btn-secondary">Cancelar</a>
         </form>
     </div>
 </body>

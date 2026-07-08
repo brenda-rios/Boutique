@@ -17,20 +17,26 @@
 		    <div class="collapse navbar-collapse" id="navbarColor01">
 		      <ul class="navbar-nav me-auto">
 		        <li class="nav-item">
-		          <a class="nav-link" href="#">Home
-		            <span class="visually-hidden">(current)</span>
-		          </a>
+		          <a class="nav-link" href="#">Home  </a>
+				</li>
+				<li class="nav-item">
+				  <a class="nav-link" th:href="@{/rutaProductos/listar}">Productos </a>
+				  </li>
+				  <li class="nav-item">
+				  <a class="nav-link" th:href="@{/rutaPedidos/listar}">Pedidos</a>
+				  </li>
+				  <li class="nav-item">
+				  <a class="nav-link" href="#">Reportes </a>
 		        </li>
 		        <li class="nav-item dropdown">
 		          <a class="nav-link dropdown-toggle" data-bs-toggle="dropdown" href="#" role="button" aria-haspopup="true" aria-expanded="false">Catálogos</a>
 		          <div class="dropdown-menu">
-		            <a class="dropdown-item" th:href="@{/rutaProductos/listar}">Productos</a>
 					<a class="dropdown-item" th:href="@{/rutaDetalleProductos/listar}">Detalle de Productos</a>
+					<a class="dropdown-item" th:href="@{/rutaDetallePedido/listar}">Detalle de Pedidos</a>
 					<div class="dropdown-divider"></div>
 		            <a class="dropdown-item" th:href="@{/rutaColores/listar}">Colores</a>
 		            <a class="dropdown-item" th:href="@{/rutaTallas/listar}">Tallas</a>
 					<a class="dropdown-item" th:href="@{/rutaCategorias/listar}">Categorias</a>
-					<a class="dropdown-item" th:href="@{/rutaPedidos/listar}">Pedidos</a>
 		          </div>
 		        </li>
 		      </ul>

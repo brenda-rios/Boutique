@@ -11,12 +11,13 @@ import org.springframework.web.bind.annotation.RequestMapping;
 import com.boutique.dto.DetallePedidoDTO;
 import com.boutique.service.DetallePedidoService;
 import com.boutique.service.DetalleProductoService;
+import com.boutique.service.PedidoService;
 
 @Controller
-@RequestMapping("/detallePedido")
+@RequestMapping("/rutaDetallePedido")
 public class DetallePedidoController {
 	@Autowired private DetallePedidoService detallePedidoService;
-    //@Autowired private PedidoService pedidoService; 
+    @Autowired private PedidoService pedidoService; 
     @Autowired private DetalleProductoService detalleProductoService;
 
     @GetMapping("/listar")
@@ -29,7 +30,7 @@ public class DetallePedidoController {
     public String nuevo(Model model) {
         model.addAttribute("detallePedido", new DetallePedidoDTO());
         // Enviamos las listas para llenar los <select>
-        //model.addAttribute("listaPedidos", pedidoService.listar());
+        model.addAttribute("listaPedidos", pedidoService.listar());
         model.addAttribute("listaDetallesProd", detalleProductoService.listar());
         return "carpetaDetallePedidos/paginaFormulario";
     }
