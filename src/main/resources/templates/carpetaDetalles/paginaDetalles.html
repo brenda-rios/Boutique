@@ -12,9 +12,9 @@
 		<table class="table table-bordered table-striped">
 			<thead class="table-dark">
 				<tr>
-					<th>ID Producto</th>
-					<th>ID Talla</th>
-					<th>ID Color</th>
+					<th>Producto</th>
+					<th>Talla</th>
+					<th>Color</th>
 					<th>Cantidad</th>
 					<th>Precio</th>
 					<th>Acciones</th>
@@ -22,9 +22,9 @@
 			</thead>
 			<tbody>
 				<tr th:each="det : ${detalles}">
-					<td th:text="${det.idProducto}"></td>
-					<td th:text="${det.idTalla}"></td>
-					<td th:text="${det.idColor}"></td>
+					<td th:text="${det.productoNombre}"></td>
+					<td th:text="${det.tallaNombre}"></td>
+					<td th:text="${det.colorNombre}"></td>
 					<td th:text="${det.cantidad}"></td>
 					<td th:text="${det.precio}"></td>
 					<td>

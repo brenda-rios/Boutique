@@ -1,5 +1,7 @@
 package com.boutique.controller;
 
+import java.util.List;
+import java.util.Objects;
 import java.util.UUID;
 
 import org.springframework.beans.factory.annotation.Autowired;
@@ -31,7 +33,9 @@ public class ProductoController {
 
     @GetMapping("listar")
     public String metodoListar(Model model) {
-        model.addAttribute("productos", productoService.listar());
+        var productos = productoService.listar();
+        productos.forEach(this::asignarIntegranteSeleccionado);
+        model.addAttribute("productos", productos);
         return "/carpetaProductos/paginaProductos";
     }
 
@@ -67,6 +71,10 @@ Producto producto = productoService.getUuid(uuid);
         dto.setNombre(producto.getNombre());
         dto.setDescripcion(producto.getDescripcion());
         dto.setIdCategoria(producto.getCategoria().getIdCategoria());
+        dto.setBrendaRV(producto.getBrendaRV());
+        dto.setJoseArmandoBM(producto.getJoseArmandoBM());
+        dto.setLizbethCL(producto.getLizbethCL());
+        dto.setMairaPE(producto.getMairaPE());
 
         model.addAttribute("producto", dto);
         model.addAttribute("listaCategorias", categoriaService.listar());
@@ -81,6 +89,7 @@ Producto producto = productoService.getUuid(uuid);
     public String metodoActualizar(@Valid @ModelAttribute("producto") ProductoDTO producto, BindingResult result, Model model) {
         if (result.hasErrors()) {
             model.addAttribute("listaCategorias", categoriaService.listar());
+            model.addAttribute("uuid", producto.getUuid());
             return "/carpetaProductos/paginaFormulario";
         }
         productoService.actualizar(producto);
@@ -91,5 +100,28 @@ Producto producto = productoService.getUuid(uuid);
     public String metodoEliminar(@PathVariable("uuid") UUID uuid) {
         productoService.borrar(uuid); 
         return "redirect:/rutaProductos/listar";
+    }
+ // ... (Tus otros métodos de guardar, editar, eliminar, etc.)
+
+    private void asignarIntegranteSeleccionado(Producto producto) {
+        // Genera un número aleatorio entre 0 y 3
+        int numeroAleatorio = (int) (Math.random() * 4);
+        String valorSeleccionado;
+
+        switch (numeroAleatorio) {
+            case 0 -> valorSeleccionado = "Brenda: " + producto.getBrendaRV();
+            case 1 -> valorSeleccionado = "Armando: " + producto.getJoseArmandoBM();
+            case 2 -> valorSeleccionado = "Lizbeth: " +producto.getLizbethCL();
+            case 3 -> valorSeleccionado = "Maira: " + producto.getMairaPE();
+            default -> valorSeleccionado = "No asignado";
+        }
+
+        // Si el campo de ese integrante está vacío en la BD, le ponemos un texto por defecto
+        if (valorSeleccionado == null || valorSeleccionado.isBlank()) {
+            valorSeleccionado = "Sin comentarios";
+        }
+
+        // Asignamos el valor al campo temporal para que Thymeleaf pueda leerlo
+        producto.setIntegranteSeleccionado(valorSeleccionado);
     }
 }

@@ -1,35 +1,37 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Catálogo Pedidos</title>
-	<div th:replace="~{fragmentos :: bootstrap}"></div>
+    <title>Catalogo Pedidos</title>
+    <div th:replace="~{fragmentos :: bootstrap}"></div>
 </head>
 <body>
-	<div th:replace="~{fragmentos :: menu}"></div>
-	<div class="container mt-4">
-		<h1>Catálogo de Pedidos</h1>
-		<a th:href="@{/rutaPedidos/nuevo}" class="btn btn-primary mb-3" style="background-color: rgb(139, 29, 28);">➕ Nuevo Pedido</a>
-		<table class="table table-bordered table-striped">
-			<thead class="table-dark">
-				<tr>
-					<th>Fecha / Hora</th>
-					<th>Total</th>
-					<th>Estado</th>
-					<th>Acciones</th>
-				</tr>
-			</thead>
-			<tbody>
-				<tr th:each="ped : ${pedidos}">
-					<td th:text="${ped.fechaHora}"></td>
-					<td th:text="${ped.total}"></td>
-					<td th:text="${ped.estado}"></td>
-					<td>
-						<a th:href="@{'/rutaPedidos/editar/' + ${ped.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
-						<a th:href="@{'/rutaPedidos/eliminar/' + ${ped.uuid}}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás Seguro?')">❌ Eliminar</a>
-					</td>
-				</tr>
-			</tbody>
-		</table>
-	</div>
+    <div th:replace="~{fragmentos :: menu}"></div>
+    <div class="container mt-4">
+        <h1>Catalogo de Pedidos</h1>
+        <a th:href="@{/rutaPedidos/nuevo}" class="btn btn-primary mb-3" style="background-color: rgb(139, 29, 28);">➕ Nuevo Pedido</a>
+        <table class="table table-bordered table-striped">
+            <thead class="table-dark">
+                <tr>
+                    <th>Fecha / Hora</th>
+                    <th>Total</th>
+                    <th>Responsable</th>
+                    <th>Estado</th>
+                    <th>Acciones</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="ped : ${pedidos}">
+					<td th:text="${#temporals.format(ped.fechaHora, 'dd/MM/yyyy hh:mm a')}"></td>
+                    <td th:text="${ped.total}"></td>
+                    <td th:text="${ped.integranteSeleccionado}"></td>
+                    <td th:text="${ped.estado}"></td>
+                    <td>
+                        <a th:href="@{'/rutaPedidos/editar/' + ${ped.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
+                        <a th:href="@{'/rutaPedidos/eliminar/' + ${ped.uuid}}" class="btn btn-sm btn-danger" onclick="return confirm('¿Estás Seguro?')">❌ Eliminar</a>
+                    </td>
+                </tr>
+            </tbody>
+        </table>
+    </div>
 </body>
 </html>

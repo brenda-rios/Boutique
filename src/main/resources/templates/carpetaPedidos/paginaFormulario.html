@@ -1,36 +1,50 @@
-<!DOCTYPE html>
+﻿<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
-	<title>Formulario Pedido</title>
-	<div th:replace="~{fragmentos :: bootstrap}"></div>
+    <title>Formulario Pedido</title>
+    <div th:replace="~{fragmentos :: bootstrap}"></div>
 </head>
 <body>
-	<div th:replace="~{fragmentos :: menu}"></div>
-	<div class="container mt-4">
-		<h1 th:text="${uuid} != null ? 'Editar Pedido' : 'Nuevo Pedido'" class="mb-4"></h1>
-		<form th:action="${uuid} == null ? @{/rutaPedidos/guardar} : @{/rutaPedidos/actualizar}" method="post" th:object="${pedido}">
-			<input type="hidden" th:field="*{uuid}" />
+    <div th:replace="~{fragmentos :: menu}"></div>
+    <div class="container mt-4">
+        <h1 th:text="${uuid != null} ? 'Editar Pedido' : 'Nuevo Pedido'" class="mb-4"></h1>
+        <form th:action="${uuid == null} ? @{/rutaPedidos/guardar} : @{/rutaPedidos/actualizar}" method="post" th:object="${pedido}">
+            <input type="hidden" th:field="*{uuid}" />
 
-			<div class="mb-3">
-				<label class="form-label">Total:</label>
-				<input type="number" step="0.01" class="form-control" th:field="*{total}" />
-				<div class="text-danger" th:if="${#fields.hasErrors('total')}" th:errors="*{total}">Error</div>
-			</div>
+            <div class="mb-3">
+                <label class="form-label">Total:</label>
+                <input type="number" step="0.01" class="form-control" th:field="*{total}" />
+                <div class="text-danger" th:if="${#fields.hasErrors('total')}" th:errors="*{total}">Error</div>
+            </div>
 
-			<div class="mb-3">
-			    <label class="form-label">Estado:</label>
-			    <select class="form-control" th:field="*{estado}">
-			        <option th:each="est : ${T(com.boutique.enums.Estado).values()}" 
-			                th:value="${est}" 
-			                th:text="${est}">
-			        </option>
-			    </select>
-			    <div class="text-danger" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}">Error</div>
-			</div>
+            <div class="mb-3">
+                <label class="form-label">Integrante Brenda RV:</label>
+                <input type="text" class="form-control" th:field="*{brendaRV}" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Integrante Jose Armando BM:</label>
+                <input type="text" class="form-control" th:field="*{joseArmandoBM}" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Integrante Lizbeth CL:</label>
+                <input type="text" class="form-control" th:field="*{lizbethCL}" />
+            </div>
+            <div class="mb-3">
+                <label class="form-label">Integrante Maira PE:</label>
+                <input type="text" class="form-control" th:field="*{mairaPE}" />
+            </div>
 
-			<button type="submit" class="btn btn-success">Guardar</button>
-			<a th:href="@{/rutaPedidos/listar}" class="btn btn-secondary">Cancelar</a>
-		</form>
-	</div>
+            <div class="mb-3">
+                <label class="form-label">Estado:</label>
+                <select class="form-control" th:field="*{estado}">
+                    <option th:each="est : ${T(com.boutique.enums.Estado).values()}" th:value="${est}" th:text="${est}"></option>
+                </select>
+                <div class="text-danger" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}">Error</div>
+            </div>
+
+            <button type="submit" class="btn btn-success">Guardar</button>
+            <a th:href="@{/rutaPedidos/listar}" class="btn btn-secondary">Cancelar</a>
+        </form>
+    </div>
 </body>
 </html>

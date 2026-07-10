@@ -12,20 +12,32 @@
 			<input type="hidden" name="uuid" th:value="${uuid}" />
 
 			<div class="mb-3">
-				<label class="form-label">ID Producto:</label>
-				<input type="number" class="form-control" th:field="*{idProducto}" />
+				<label class="form-label">Producto:</label>
+				<select class="form-select" th:field="*{idProducto}">
+					<option th:each="producto : ${listaProductos}"
+						 th:value="${producto.idProducto}"
+						 th:text="${producto.nombre}"></option>
+				</select>
 				<div class="text-danger" th:if="${#fields.hasErrors('idProducto')}" th:errors="*{idProducto}">Error</div>
 			</div>
 
 			<div class="mb-3">
-				<label class="form-label">ID Talla:</label>
-				<input type="number" class="form-control" th:field="*{idTalla}" />
+				<label class="form-label">Talla:</label>
+				<select class="form-select" th:field="*{idTalla}">
+					<option th:each="talla : ${listaTallas}"
+						 th:value="${talla.idTalla}"
+						 th:text="${talla.nombre}"></option>
+				</select>
 				<div class="text-danger" th:if="${#fields.hasErrors('idTalla')}" th:errors="*{idTalla}">Error</div>
 			</div>
 
 			<div class="mb-3">
-				<label class="form-label">ID Color:</label>
-				<input type="number" class="form-control" th:field="*{idColor}" />
+				<label class="form-label">Color:</label>
+				<select class="form-select" th:field="*{idColor}">
+					<option th:each="color : ${listaColores}"
+						 th:value="${color.idColor}"
+						 th:text="${color.nombre}"></option>
+				</select>
 				<div class="text-danger" th:if="${#fields.hasErrors('idColor')}" th:errors="*{idColor}">Error</div>
 			</div>
 

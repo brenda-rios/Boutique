@@ -9,6 +9,8 @@ import jakarta.persistence.Id;
 import jakarta.persistence.JoinColumn;
 import jakarta.persistence.ManyToOne;
 import jakarta.persistence.Table;
+import jakarta.persistence.Transient;
+
 import java.util.UUID;
 
 @Entity
@@ -33,6 +35,21 @@ public class Producto {
     @ManyToOne(fetch = FetchType.EAGER)
     @JoinColumn(name = "id_categoria", nullable = false)
     private Categoria categoria;
+
+    @Column(name = "BrendaRV")
+    private String brendaRV;
+
+    @Column(name = "JoseArmandoBM")
+    private String joseArmandoBM;
+
+    @Column(name = "LizbethCL")
+    private String lizbethCL;
+
+    @Column(name = "MairaPE")
+    private String mairaPE;
+
+    @Transient
+    private String integranteSeleccionado;
 
     public Producto() {
         this.uuid = UUID.randomUUID();
@@ -77,5 +94,45 @@ public class Producto {
 
     public void setCategoria(Categoria categoria) {
         this.categoria = categoria;
+    }
+
+    public String getBrendaRV() {
+        return brendaRV;
+    }
+
+    public void setBrendaRV(String brendaRV) {
+        this.brendaRV = brendaRV;
+    }
+
+    public String getJoseArmandoBM() {
+        return joseArmandoBM;
+    }
+
+    public void setJoseArmandoBM(String joseArmandoBM) {
+        this.joseArmandoBM = joseArmandoBM;
+    }
+
+    public String getLizbethCL() {
+        return lizbethCL;
+    }
+
+    public void setLizbethCL(String lizbethCL) {
+        this.lizbethCL = lizbethCL;
+    }
+
+    public String getMairaPE() {
+        return mairaPE;
+    }
+
+    public void setMairaPE(String mairaPE) {
+        this.mairaPE = mairaPE;
+    }
+
+    public String getIntegranteSeleccionado() {
+        return integranteSeleccionado;
+    }
+
+    public void setIntegranteSeleccionado(String integranteSeleccionado) {
+        this.integranteSeleccionado = integranteSeleccionado;
     }
 }

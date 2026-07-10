@@ -13,74 +13,125 @@ import jakarta.persistence.GeneratedValue;
 import jakarta.persistence.GenerationType;
 import jakarta.persistence.Id;
 import jakarta.persistence.PrePersist;
+import jakarta.persistence.Transient;
 
 @Entity
 public class Pedido {
-	
-	    @Id
-	    @GeneratedValue(strategy = GenerationType.IDENTITY)
-	    private Long idPedido;
 
-	    @Column(unique = true)
-	    private UUID uuid;
+    @Id
+    @GeneratedValue(strategy = GenerationType.IDENTITY)
+    private Long idPedido;
 
-	    private LocalDateTime fechaHora;
+    @Column(unique = true)
+    private UUID uuid;
 
-	    private Float total;
-	    
-        @Enumerated(EnumType.STRING)
-	    private Estado estado;
+    private LocalDateTime fechaHora;
 
-	    @PrePersist
-	    private void inicializarUuid() {
-	        this.uuid = UUID.randomUUID();
-	        if (this.fechaHora == null) {
-	            this.fechaHora = LocalDateTime.now();
-	        }
-	    }
+    private Float total;
+    
+    @Enumerated(EnumType.STRING)
+    private Estado estado;
 
-		public Long getIdPedido() {
-			return idPedido;
-		}
+    @Column(name = "BrendaRV")
+    private String brendaRV;
 
-		public void setIdPedido(Long idPedido) {
-			this.idPedido = idPedido;
-		}
+    @Column(name = "JoseArmandoBM")
+    private String joseArmandoBM;
 
-		public UUID getUuid() {
-			return uuid;
-		}
+    @Column(name = "LizbethCL")
+    private String lizbethCL;
 
-		public void setUuid(UUID uuid) {
-			this.uuid = uuid;
-		}
+    @Column(name = "MairaPE")
+    private String mairaPE;
 
-		public LocalDateTime getFechaHora() {
-			return fechaHora;
-		}
+    @Transient
+    private String integranteSeleccionado;
 
-		public void setFechaHora(LocalDateTime fechaHora) {
-			this.fechaHora = fechaHora;
-		}
+    @PrePersist
+    private void inicializarUuid() {
+        this.uuid = UUID.randomUUID();
+        if (this.fechaHora == null) {
+            this.fechaHora = LocalDateTime.now();
+        }
+    }
 
-		public Float getTotal() {
-			return total;
-		}
+    public Long getIdPedido() {
+        return idPedido;
+    }
 
-		public void setTotal(Float total) {
-			this.total = total;
-		}
+    public void setIdPedido(Long idPedido) {
+        this.idPedido = idPedido;
+    }
 
-		public Estado getEstado() {
-			return estado;
-		}
+    public UUID getUuid() {
+        return uuid;
+    }
 
-		public void setEstado(Estado estado) {
-			this.estado = estado;
-		}
+    public void setUuid(UUID uuid) {
+        this.uuid = uuid;
+    }
 
-		
+    public LocalDateTime getFechaHora() {
+        return fechaHora;
+    }
 
+    public void setFechaHora(LocalDateTime fechaHora) {
+        this.fechaHora = fechaHora;
+    }
 
-	    
+    public Float getTotal() {
+        return total;
+    }
+
+    public void setTotal(Float total) {
+        this.total = total;
+    }
+
+    public Estado getEstado() {
+        return estado;
+    }
+
+    public void setEstado(Estado estado) {
+        this.estado = estado;
+    }
+
+    public String getBrendaRV() {
+        return brendaRV;
+    }
+
+    public void setBrendaRV(String brendaRV) {
+        this.brendaRV = brendaRV;
+    }
+
+    public String getJoseArmandoBM() {
+        return joseArmandoBM;
+    }
+
+    public void setJoseArmandoBM(String joseArmandoBM) {
+        this.joseArmandoBM = joseArmandoBM;
+    }
+
+    public String getLizbethCL() {
+        return lizbethCL;
+    }
+
+    public void setLizbethCL(String lizbethCL) {
+        this.lizbethCL = lizbethCL;
+    }
+
+    public String getMairaPE() {
+        return mairaPE;
+    }
+
+    public void setMairaPE(String mairaPE) {
+        this.mairaPE = mairaPE;
+    }
+
+    public String getIntegranteSeleccionado() {
+        return integranteSeleccionado;
+    }
+
+    public void setIntegranteSeleccionado(String integranteSeleccionado) {
+        this.integranteSeleccionado = integranteSeleccionado;
+    }
 }

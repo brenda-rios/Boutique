@@ -33,12 +33,14 @@ public class PedidoController {
     @GetMapping("nuevo")
     public String metodoNuevo(Model model) {
         model.addAttribute("pedido", new PedidoDTO());
+        model.addAttribute("uuid", null);
         return "/carpetaPedidos/paginaFormulario";
     }
 
     @PostMapping("guardar")
     public String metodoGuardar(@Valid @ModelAttribute("pedido") PedidoDTO pedido, BindingResult result, Model model) {
         if (result.hasErrors()) {
+            model.addAttribute("uuid", null);
             return "/carpetaPedidos/paginaFormulario";
         }
         pedidoService.guardar(pedido);
