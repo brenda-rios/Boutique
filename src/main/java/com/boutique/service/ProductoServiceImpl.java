@@ -31,6 +31,10 @@ public class ProductoServiceImpl implements ProductoService {
         Producto producto = new Producto();
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
+        producto.setBrendaRV(dto.getBrendaRV());
+        producto.setJoseArmandoBM(dto.getJoseArmandoBM());
+        producto.setLizbethCL(dto.getLizbethCL());
+        producto.setMairaPE(dto.getMairaPE());
         
         // Buscamos la categoría de forma segura
         Categoria cat = categoriaRepo.findById(dto.getIdCategoria())
@@ -53,6 +57,10 @@ public class ProductoServiceImpl implements ProductoService {
                 
         producto.setNombre(dto.getNombre());
         producto.setDescripcion(dto.getDescripcion());
+        producto.setBrendaRV(dto.getBrendaRV());
+        producto.setJoseArmandoBM(dto.getJoseArmandoBM());
+        producto.setLizbethCL(dto.getLizbethCL());
+        producto.setMairaPE(dto.getMairaPE());
 
         Categoria cat = categoriaRepo.findById(dto.getIdCategoria())
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no válida"));

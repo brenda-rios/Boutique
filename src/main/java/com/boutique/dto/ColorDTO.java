@@ -5,6 +5,7 @@ import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 
 public class ColorDTO {
+	private Long idColor;
 	@NotBlank(message = "El nombre del color es obligatorio")
     private String nombre;
     private UUID uuid;
@@ -20,6 +21,12 @@ public class ColorDTO {
 	}
 	public void setUuid(UUID uuid) {
 		this.uuid = uuid;
+	}
+	public Long getIdColor() {
+		return idColor;
+	}
+	public void setIdColor(Long idColor) {
+		this.idColor = idColor;
 	}
 	
 	

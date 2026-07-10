@@ -15,7 +15,11 @@ public class ProductoDTO {
 
     @NotNull(message = "Debes seleccionar una categoría")
     private Long idCategoria;
-    
+    private String brendaRV;
+    private String joseArmandoBM;
+    private String lizbethCL;
+    private String mairaPE;
+
     // CORRECCIÓN: Constructor vacío explícito obligatorio para Thymeleaf
     public ProductoDTO() {
     }
@@ -59,5 +63,37 @@ public class ProductoDTO {
 
     public void setIdCategoria(Long idCategoria) {
         this.idCategoria = idCategoria;
+    }
+
+    public String getBrendaRV() {
+        return brendaRV;
+    }
+
+    public void setBrendaRV(String brendaRV) {
+        this.brendaRV = brendaRV;
+    }
+
+    public String getJoseArmandoBM() {
+        return joseArmandoBM;
+    }
+
+    public void setJoseArmandoBM(String joseArmandoBM) {
+        this.joseArmandoBM = joseArmandoBM;
+    }
+
+    public String getLizbethCL() {
+        return lizbethCL;
+    }
+
+    public void setLizbethCL(String lizbethCL) {
+        this.lizbethCL = lizbethCL;
+    }
+
+    public String getMairaPE() {
+        return mairaPE;
+    }
+
+    public void setMairaPE(String mairaPE) {
+        this.mairaPE = mairaPE;
     }
 }

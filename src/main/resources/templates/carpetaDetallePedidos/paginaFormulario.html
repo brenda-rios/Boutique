@@ -9,10 +9,11 @@
     <div th:replace="~{fragmentos :: menu}"></div>
     
     <div class="container mt-4">
-        <h2>Guardar Detalle de Pedido</h2>
+        <h1 th:text="${detallePedido.uuid} == null ? 'Nuevo Detalle de Pedido' : 'Editar Detalle de Pedido'"></h1>
         
-        <form th:action="@{/rutaDetallePedido/guardar}" th:object="${detallePedido}" method="post">
-            <input type="hidden" th:field="*{idDetPed}">
+        <form th:action="${detallePedido.uuid} == null ? @{/rutaDetallePedido/guardar} : @{/rutaDetallePedido/actualizar}" th:object="${detallePedido}" method="post">
+            <input type="hidden" th:field="*{idDetPed}" />
+            <input type="hidden" th:field="*{uuid}" />
 
             <div class="mb-3">
                 <label class="form-label">Pedido:</label>
@@ -23,10 +24,13 @@
             </div>
 
             <div class="mb-3">
-                <label class="form-label">Producto en Inventario (Detalle Producto):</label>
+                <label class="form-label">Producto en Inventario:</label>
                 <select class="form-select" th:field="*{idDetProd}" required>
                     <option value="">-- Seleccione un Producto --</option>
-                    <option th:each="dp : ${listaDetallesProd}" th:value="${dp.idDetProd}" th:text="${dp.producto.nombre + ' - ' + dp.talla.nombre + ' - ' + dp.color.nombre}"></option>
+					<option th:each="dp : ${listaDetallesProd}" 
+					        th:value="${dp.idDetProd}" 
+					        th:text="${dp.productoNombre + ' - ' + dp.tallaNombre + ' - ' + dp.colorNombre}">
+					</option>
                 </select>
             </div>
 
