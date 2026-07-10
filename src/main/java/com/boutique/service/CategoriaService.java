@@ -34,14 +34,22 @@ public class CategoriaService {
     }
     
     public void actualizar(CategoriaDTO categoria) {
-		Optional<Categoria> OptCategoria = categoriaRepo.findByUuid(categoria.getUuid());
-		if (OptCategoria.isPresent()) {
-			mapper.map(categoria, OptCategoria.get());
-			categoriaRepo.save(OptCategoria.get());
-		} else {
-			throw new EntityNotFoundException("Categoría no encontrada con UUID: " + categoria.getUuid());
-		}	
-	}
+        Optional<Categoria> optCategoria = categoriaRepo.findByUuid(categoria.getUuid());
+        
+        if (optCategoria.isPresent()) {
+            Categoria entidadExistente = optCategoria.get();
+            
+            // Mapeo manual: solo actualizamos los campos que el usuario edita
+            entidadExistente.setNombre(categoria.getNombre());
+            // Si tu categoría tiene otros campos editables (ej. descripcion), agrégalos aquí:
+            // entidadExistente.setDescripcion(categoria.getDescripcion());
+            
+            // Guardamos la entidad original, manteniendo su ID y UUID intactos
+            categoriaRepo.save(entidadExistente);
+        } else {
+            throw new EntityNotFoundException("Categoría no encontrada con UUID: " + categoria.getUuid());
+        }
+    }
 	
 	public void borrar(UUID uuid) {
 		Optional<Categoria> OptCategoria = categoriaRepo.findByUuid(uuid);

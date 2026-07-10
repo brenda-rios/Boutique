@@ -32,14 +32,19 @@ public class ColorService {
     }
     
     public void actualizar(ColorDTO color) {
-		Optional<Color> OptColor = colorRepo.findByUuid(color.getUuid());
-		if (OptColor.isPresent()) {
-			mapper.map(color, OptColor.get());
-			colorRepo.save(OptColor.get());
-		} else {
-			throw new EntityNotFoundException("Color no encontrado con el UUID: " + color.getUuid());
-		}	
-	}
+        Optional<Color> OptColor = colorRepo.findByUuid(color.getUuid());
+        if (OptColor.isPresent()) {
+            Color entidadExistente = OptColor.get();
+            
+            // Mapeo manual de campos (o configurar el mapper para ignorar id)
+            entidadExistente.setNombre(color.getNombre());
+            // NO setees el ID ni el UUID aquí, la entidad ya los tiene correctamente
+            
+            colorRepo.save(entidadExistente);
+        } else {
+            throw new EntityNotFoundException("Color no encontrado con el UUID: " + color.getUuid());
+        }
+    }
 	
 	public void borrar(UUID uuid) {
 		Optional<Color> OptColor = colorRepo.findByUuid(uuid);

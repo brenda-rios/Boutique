@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Detalle de Venta</title>
+    <div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+    <div th:replace="~{fragmentos :: menu}"></div>
+
+    <div class="container mt-4">
+        <h3>Detalle de Venta</h3>
+        <div>
+            <p>Pedido: <strong th:text="${pedidoUuid}"></strong></p>
+            <p th:if="${pedido != null}">Fecha: <span th:text="${pedido.fechaHora}"></span> &nbsp; Total: <span th:text="${pedido.total}"></span></p>
+        </div>
+
+        <table class="table table-bordered mt-3">
+            <thead>
+                <tr>
+                    <th>Producto</th>
+                    <th>Categoría</th>
+                    <th>Color</th>
+                    <th>Talla</th>
+                    <th>Cantidad</th>
+                    <th>Precio Unit.</th>
+                    <th>Subtotal</th>
+                </tr>
+            </thead>
+            <tbody>
+                <tr th:each="d : ${detalles}">
+                    <td th:text="${d.productoNombre}"></td>
+                    <td th:text="${d.categoriaNombre}"></td>
+                    <td th:text="${d.color}"></td>
+                    <td th:text="${d.talla}"></td>
+                    <td th:text="${d.cantidad}"></td>
+                    <td th:text="${d.precioUnitario}"></td>
+                    <td th:text="${d.subtotal}"></td>
+                </tr>
+            </tbody>
+        </table>
+
+        <a th:href="@{/reportes/ventas}" class="btn btn-secondary">Volver</a>
+    </div>
+
+</body>
+</html>

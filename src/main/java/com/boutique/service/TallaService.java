@@ -31,14 +31,19 @@ public class TallaService {
         tallaRepo.save(mapper.map(talla, Talla.class));
     }
     public void actualizar(TallaDTO talla) {
-		Optional<Talla> OptTalla = tallaRepo.findByUuid(talla.getUuid());
-		if (OptTalla.isPresent()) {
-			mapper.map(talla, OptTalla.get());
-			tallaRepo.save(OptTalla.get());
-		} else {
-			throw new EntityNotFoundException("Talla no encontrada con el UUID: " + talla.getUuid());
-		}	
-	}
+        Optional<Talla> OptTalla = tallaRepo.findByUuid(talla.getUuid());
+        if (OptTalla.isPresent()) {
+            Talla entidadExistente = OptTalla.get();
+            
+            // Mapeo manual: solo actualizamos lo que el usuario puede cambiar
+            entidadExistente.setNombre(talla.getNombre());
+            
+            // No tocamos el ID ni el UUID, ya que esos son inmutables para el registro
+            tallaRepo.save(entidadExistente);
+        } else {
+            throw new EntityNotFoundException("Talla no encontrada con el UUID: " + talla.getUuid());
+        }
+    }
 	
 	public void borrar(UUID uuid) {
 		Optional<Talla> OptTalla = tallaRepo.findByUuid(uuid);

@@ -1,0 +1,74 @@
+<!DOCTYPE html>
+<html xmlns:th="http://www.thymeleaf.org">
+<head>
+    <title>Reportes - Ventas</title>
+    <div th:replace="~{fragmentos :: bootstrap}"></div>
+</head>
+<body>
+    <div th:replace="~{fragmentos :: menu}"></div>
+
+    <div class="container mt-4">
+        <h3>Reportes - Ventas</h3>
+        <form class="row g-3" method="get" th:action="@{/reportes/ventas}">
+            <div class="col-md-2">
+                <label class="form-label">Desde</label>
+                <input type="date" name="desde" class="form-control" th:value="${fDesde}">
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Hasta</label>
+                <input type="date" name="hasta" class="form-control" th:value="${fHasta}">
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Categoría</label>
+                <select name="categoriaId" class="form-select">
+                    <option value="" th:text="'-- Todas --'"></option>
+                    <option th:each="c : ${categorias}" th:value="${c.idCategoria}" th:text="${c.nombre}" th:selected="${c.idCategoria} == ${fCategoriaId}"></option>
+                </select>
+            </div>
+            <div class="col-md-3">
+                <label class="form-label">Producto</label>
+                <select name="productoId" class="form-select">
+                    <option value="" th:text="'-- Todos --'"></option>
+                    <option th:each="p : ${productos}" th:value="${p.idProducto}" th:text="${p.nombre}" th:selected="${p.idProducto} == ${fProductoId}"></option>
+                </select>
+            </div>
+            <div class="col-md-2">
+                <label class="form-label">Estado</label>
+                <select name="estado" class="form-select">
+                    <option value="" th:text="'-- Todos --'"></option>
+                    <option th:each="e : ${estados}" th:value="${e}" th:text="${e}" th:selected="${e.name()} == ${fEstado}"></option>
+                </select>
+            </div>
+            <div class="col-12 mt-2">
+                <button class="btn btn-primary" type="submit" style="background-color: rgb(139, 29, 28);">Filtrar</button>
+            </div>
+        </form>
+
+        <div class="mt-4">
+            <table class="table table-striped">
+                <thead>
+                    <tr>
+                        <th>Fecha</th>
+                        <th>UUID</th>
+                        <th>Total</th>
+                        <th>Estado</th>
+                        <th>Detalles del Pedido</th>
+                        <th></th>
+                    </tr>
+                </thead>
+                <tbody>
+                    <tr th:each="v : ${ventas}">
+						<td th:text="${#temporals.format(v.fechaHora, 'dd/MM/yyyy hh:mm a')}"></td>
+						<td th:text="${v.uuid}"></td>		
+                        <td th:text="${v.total}"></td>
+                        <td th:text="${v.estado}"></td>
+                        <td th:text="${v.nLineas}"></td>
+                        <td><a class="btn btn-sm btn-outline-secondary" th:href="@{/reportes/ventas/{uuid}(uuid=${v.uuid})}">Detalle</a></td>
+                    </tr>
+                </tbody>
+            </table>
+        </div>
+    </div>
+
+</body>
+</html>
