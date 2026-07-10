@@ -11,6 +11,8 @@ import org.springframework.stereotype.Service;
 import com.boutique.dto.TallaDTO;
 import com.boutique.model.Talla;
 import com.boutique.repo.TallaRepo;
+import com.boutique.repo.DetalleProductoRepo;
+import com.boutique.exception.ReferencedEntityException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -18,6 +20,8 @@ import jakarta.persistence.EntityNotFoundException;
 public class TallaService {
 	@Autowired
     TallaRepo tallaRepo;
+    @Autowired
+    DetalleProductoRepo detalleProductoRepo;
     @Autowired
     ModelMapper mapper;
 
@@ -48,7 +52,15 @@ public class TallaService {
 	public void borrar(UUID uuid) {
 		Optional<Talla> OptTalla = tallaRepo.findByUuid(uuid);
 		if (OptTalla.isPresent()) {
-			tallaRepo.delete(OptTalla.get());
+			Talla talla = OptTalla.get();
+			// Validar que no hay detalles de producto asociados
+			long detallesCount = detalleProductoRepo.countByTalla(talla);
+			if (detallesCount > 0) {
+				throw new ReferencedEntityException(
+					"No se puede eliminar esta talla porque está siendo utilizada en " + detallesCount + " detalle(s) de producto."
+				);
+			}
+			tallaRepo.delete(talla);
 		} else {
 			throw new EntityNotFoundException("Talla no encontrada con el UUID: " + uuid);
 		}

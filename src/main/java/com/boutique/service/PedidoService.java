@@ -14,6 +14,8 @@ import org.springframework.stereotype.Service;
 import com.boutique.dto.PedidoDTO;
 import com.boutique.model.Pedido;
 import com.boutique.repo.PedidoRepo;
+import com.boutique.repo.DetallePedidoRepo;
+import com.boutique.exception.ReferencedEntityException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -24,7 +26,7 @@ public class PedidoService {
     PedidoRepo pedidoRepo;
     
     @Autowired
-    private com.boutique.repo.DetallePedidoRepo detallePedidoRepo;
+    private DetallePedidoRepo detallePedidoRepo;
     
     @Autowired
     ModelMapper mapper;
@@ -84,7 +86,15 @@ public class PedidoService {
     public void borrar(UUID uuid) {
         Optional<Pedido> OptPedido = pedidoRepo.findByUuid(uuid);
         if (OptPedido.isPresent()) {
-            pedidoRepo.delete(OptPedido.get());
+            Pedido pedido = OptPedido.get();
+            // Validar que no hay detalles de pedido asociados
+            long detallesPedidoCount = detallePedidoRepo.countByPedido(pedido);
+            if (detallesPedidoCount > 0) {
+                throw new ReferencedEntityException(
+                    "No se puede eliminar este pedido porque tiene " + detallesPedidoCount + " detalle(s) asociado(s)."
+                );
+            }
+            pedidoRepo.delete(pedido);
         } else {
             throw new EntityNotFoundException("Pedido no encontrado con UUID: " + uuid);
         }

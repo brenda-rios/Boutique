@@ -6,6 +6,13 @@
 		<link rel="stylesheet" th:href="@{/css/bootstrap.min.css}">
 		<script th:src="@{/js/bootstrap.bundle.min.js}"></script>
 	</div>
+
+	<div th:fragment="alertas">
+		<div th:if="${param.errorMsg}" class="alert alert-danger alert-dismissible fade show" role="alert">
+			<strong>Error:</strong> <span th:text="${param.errorMsg}"></span>
+			<button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+	</div>
 	
 	<div th:fragment="menu">
 		<nav class="navbar navbar-expand-lg" data-bs-theme="dark" style="background-color: rgb(139, 29, 28);">

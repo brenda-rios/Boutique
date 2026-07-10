@@ -9,9 +9,11 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
-import com.boutique.dto.CategoriaDTO;
-import com.boutique.model.Categoria;
 import com.boutique.repo.CategoriaRepo;
+import com.boutique.repo.ProductoRepo;
+import com.boutique.dto.CategoriaDTO;
+import com.boutique.exception.ReferencedEntityException;
+import com.boutique.model.Categoria;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -20,6 +22,8 @@ public class CategoriaService {
 	
 	@Autowired
     CategoriaRepo categoriaRepo;
+    @Autowired
+    ProductoRepo productoRepo;
     @Autowired
     ModelMapper mapper;
 
@@ -54,7 +58,15 @@ public class CategoriaService {
 	public void borrar(UUID uuid) {
 		Optional<Categoria> OptCategoria = categoriaRepo.findByUuid(uuid);
 		if (OptCategoria.isPresent()) {
-			categoriaRepo.delete(OptCategoria.get());
+			Categoria categoria = OptCategoria.get();
+			// Validar que no hay productos asociados
+			long productosCount = productoRepo.countByCategoria(categoria);
+			if (productosCount > 0) {
+				throw new ReferencedEntityException(
+					"No se puede eliminar esta categoría porque está siendo utilizada en " + productosCount + " producto(s)."
+				);
+			}
+			categoriaRepo.delete(categoria);
 		} else {
 			throw new EntityNotFoundException("Categoría no encontrada con UUID: " + uuid);
 		}
