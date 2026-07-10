@@ -24,6 +24,9 @@ public class PedidoService {
     PedidoRepo pedidoRepo;
     
     @Autowired
+    private com.boutique.repo.DetallePedidoRepo detallePedidoRepo;
+    
+    @Autowired
     ModelMapper mapper;
 
     public List<PedidoDTO> listar() {
@@ -40,12 +43,15 @@ public class PedidoService {
     public void guardar(PedidoDTO pedidoDTO) {
         Pedido pedido = mapper.map(pedidoDTO, Pedido.class);
         
-        // Si es un registro nuevo, autogeneramos el UUID y la Fecha/Hora actual
         if (pedido.getUuid() == null) {
             pedido.setUuid(UUID.randomUUID());
         }
         if (pedido.getFechaHora() == null) {
             pedido.setFechaHora(LocalDateTime.now());
+        }
+        // 🔴 INICIALIZAMOS EL TOTAL EN 0 PARA PEDIDOS NUEVOS
+        if (pedido.getTotal() == null) {
+            pedido.setTotal(0f);
         }
         
         pedidoRepo.save(pedido);
@@ -55,7 +61,15 @@ public class PedidoService {
         Optional<Pedido> OptPedido = pedidoRepo.findByUuid(pedido.getUuid());
         if (OptPedido.isPresent()) {
             Pedido entidad = OptPedido.get();
-            entidad.setTotal(pedido.getTotal());
+            // Recalcular total a partir de los detalles asociados (no usar el valor pasado en el DTO)
+            float suma = 0f;
+            java.util.List<com.boutique.model.DetallePedido> detalles = detallePedidoRepo.findByPedido(entidad);
+            if (detalles != null) {
+                for (com.boutique.model.DetallePedido dp : detalles) {
+                    if (dp.getSubtotal() != null) suma += dp.getSubtotal();
+                }
+            }
+            entidad.setTotal(suma);
             entidad.setEstado(pedido.getEstado());
             entidad.setBrendaRV(pedido.getBrendaRV());
             entidad.setJoseArmandoBM(pedido.getJoseArmandoBM());

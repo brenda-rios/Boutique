@@ -11,11 +11,11 @@
         <form th:action="${uuid == null} ? @{/rutaPedidos/guardar} : @{/rutaPedidos/actualizar}" method="post" th:object="${pedido}">
             <input type="hidden" th:field="*{uuid}" />
 
-            <div class="mb-3">
-                <label class="form-label">Total:</label>
-                <input type="number" step="0.01" class="form-control" th:field="*{total}" />
-                <div class="text-danger" th:if="${#fields.hasErrors('total')}" th:errors="*{total}">Error</div>
-            </div>
+			<div class="mb-3" th:if="${uuid != null}">
+			                <label class="form-label">Total Calculado:</label>
+			                <input type="number" step="0.01" class="form-control bg-light" th:field="*{total}" readonly />
+			                <small class="text-muted">El total se calcula automáticamente al añadir productos al pedido.</small>
+			            </div>
 
             <div class="mb-3">
                 <label class="form-label">Integrante Brenda RV:</label>
