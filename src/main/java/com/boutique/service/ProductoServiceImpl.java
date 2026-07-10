@@ -11,6 +11,8 @@ import com.boutique.model.Producto;
 import com.boutique.model.Categoria;
 import com.boutique.repo.ProductoRepo;
 import com.boutique.repo.CategoriaRepo;
+import com.boutique.repo.DetalleProductoRepo;
+import com.boutique.exception.ReferencedEntityException;
 
 @Service
 public class ProductoServiceImpl implements ProductoService {
@@ -20,6 +22,9 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
     private CategoriaRepo categoriaRepo;
+    
+    @Autowired
+    private DetalleProductoRepo detalleProductoRepo;
 
     @Override
     public List<Producto> listar() {
@@ -72,7 +77,15 @@ public class ProductoServiceImpl implements ProductoService {
     public void borrar(UUID uuid) {
         Optional<Producto> optProducto = productoRepo.findByUuid(uuid);
         if (optProducto.isPresent()) {
-            productoRepo.delete(optProducto.get());
+            Producto producto = optProducto.get();
+            // Validar que no hay detalles de producto asociados
+            long detallesCount = detalleProductoRepo.countByProducto(producto);
+            if (detallesCount > 0) {
+                throw new ReferencedEntityException(
+                    "No se puede eliminar este producto porque está siendo utilizado en " + detallesCount + " detalle(s) de producto."
+                );
+            }
+            productoRepo.delete(producto);
         } else {
             throw new jakarta.persistence.EntityNotFoundException("Producto no encontrado con UUID: " + uuid);
         }

@@ -8,10 +8,13 @@ import org.springframework.stereotype.Repository;
 
 import com.boutique.model.DetallePedido;
 import com.boutique.model.Pedido;
+import com.boutique.model.DetalleProducto;
 import java.util.List;
 
 @Repository
 public interface DetallePedidoRepo extends JpaRepository<DetallePedido, Long> {
     Optional<DetallePedido> findByUuid(UUID uuid);
     List<DetallePedido> findByPedido(Pedido pedido);
+    long countByDetalleProducto(DetalleProducto detalleProducto);
+    long countByPedido(Pedido pedido);
 }

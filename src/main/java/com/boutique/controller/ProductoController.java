@@ -111,7 +111,7 @@ Producto producto = productoService.getUuid(uuid);
         switch (numeroAleatorio) {
             case 0 -> valorSeleccionado = "Brenda: " + producto.getBrendaRV();
             case 1 -> valorSeleccionado = "Armando: " + producto.getJoseArmandoBM();
-            case 2 -> valorSeleccionado = "Lizbeth: " +producto.getLizbethCL();
+            case 2 -> valorSeleccionado = "Lizbeth: " + producto.getLizbethCL();
             case 3 -> valorSeleccionado = "Maira: " + producto.getMairaPE();
             default -> valorSeleccionado = "No asignado";
         }

@@ -16,6 +16,8 @@ import com.boutique.repo.ColorRepo;
 import com.boutique.repo.DetalleProductoRepo;
 import com.boutique.repo.ProductoRepo;
 import com.boutique.repo.TallaRepo;
+import com.boutique.repo.DetallePedidoRepo;
+import com.boutique.exception.ReferencedEntityException;
 
 import jakarta.persistence.EntityNotFoundException;
 
@@ -32,6 +34,9 @@ public class DetalleProductoService {
 
     @Autowired
     private ColorRepo colorRepo;
+    
+    @Autowired
+    private DetallePedidoRepo detallePedidoRepo;
 
     public List<DetalleProductoDTO> listar() {
         return detalleProductoRepo.findAll().stream()
@@ -67,7 +72,15 @@ public class DetalleProductoService {
     public void borrar(UUID uuid) {
         Optional<DetalleProducto> optDetalle = detalleProductoRepo.findByUuid(uuid);
         if (optDetalle.isPresent()) {
-            detalleProductoRepo.delete(optDetalle.get());
+            DetalleProducto detalle = optDetalle.get();
+            // Validar que no hay detalles de pedido asociados
+            long detallePedidosCount = detallePedidoRepo.countByDetalleProducto(detalle);
+            if (detallePedidosCount > 0) {
+                throw new ReferencedEntityException(
+                    "No se puede eliminar este detalle de producto porque está siendo utilizado en " + detallePedidosCount + " detalle(s) de pedido."
+                );
+            }
+            detalleProductoRepo.delete(detalle);
         } else {
             throw new EntityNotFoundException("Detalle no encontrado con UUID: " + uuid);
         }
