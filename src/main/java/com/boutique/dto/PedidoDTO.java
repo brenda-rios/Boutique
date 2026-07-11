@@ -16,8 +16,6 @@ public class PedidoDTO {
 
     private LocalDateTime fechaHora;
 
-    @NotNull(message = "El total es obligatorio")
-    @Min(value = 0, message = "El total no puede ser negativo")
     private Float total;
 
     @NotNull(message = "El estado es obligatorio")
