@@ -1,16 +1,33 @@
 package com.boutique.dto;
 
 import java.util.UUID;
+import jakarta.validation.constraints.Min;
+import jakarta.validation.constraints.NotNull;
 
 public class DetallePedidoDTO {
     private Long idDetPed;
     private UUID uuid;
     private Long idPedido;
+    
+    @NotNull(message = "El producto es obligatorio")
     private Long idDetProd;
+    
+    @NotNull(message = "La cantidad es obligatoria")
+    @Min(value = 1, message = "La cantidad debe ser mayor a 0")
     private Integer cantidad;
+    
+    // Puede venir nulo desde el form si calculamos en server, pero si el form lo envía, lo permitimos.
     private Float precioUnitario;
     
-    
+    private String descripcionProducto;
+
+    public String getDescripcionProducto() {
+        return descripcionProducto;
+    }
+    public void setDescripcionProducto(String descripcionProducto) {
+        this.descripcionProducto = descripcionProducto;
+    }
+
     public Long getIdDetPed() {
         return idDetPed;
     }

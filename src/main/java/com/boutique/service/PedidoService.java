@@ -11,12 +11,16 @@ import org.modelmapper.ModelMapper;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
 import com.boutique.dto.PedidoDTO;
+import com.boutique.dto.DetallePedidoDTO;
 import com.boutique.model.Pedido;
+import com.boutique.model.DetallePedido;
+import com.boutique.model.DetalleProducto;
 import com.boutique.repo.PedidoRepo;
 import com.boutique.repo.DetallePedidoRepo;
-import com.boutique.exception.ReferencedEntityException;
-
+import com.boutique.repo.DetalleProductoRepo;
 import jakarta.persistence.EntityNotFoundException;
 
 @Service
@@ -27,6 +31,9 @@ public class PedidoService {
     
     @Autowired
     private DetallePedidoRepo detallePedidoRepo;
+    
+    @Autowired
+    private DetalleProductoRepo detalleProductoRepo;
     
     @Autowired
     ModelMapper mapper;
@@ -42,6 +49,7 @@ public class PedidoService {
     }
 
     // 💡 Lógica mejorada idéntica a productos para autogenerar datos faltantes
+    @Transactional
     public void guardar(PedidoDTO pedidoDTO) {
         Pedido pedido = mapper.map(pedidoDTO, Pedido.class);
         
@@ -51,49 +59,94 @@ public class PedidoService {
         if (pedido.getFechaHora() == null) {
             pedido.setFechaHora(LocalDateTime.now());
         }
-        // 🔴 INICIALIZAMOS EL TOTAL EN 0 PARA PEDIDOS NUEVOS
-        if (pedido.getTotal() == null) {
-            pedido.setTotal(0f);
+        
+        pedido = pedidoRepo.save(pedido);
+
+        float total = 0f;
+        if (pedidoDTO.getDetalles() != null) {
+            for (DetallePedidoDTO detDto : pedidoDTO.getDetalles()) {
+                DetallePedido det = new DetallePedido();
+                det.setPedido(pedido);
+                det.setCantidad(detDto.getCantidad());
+                
+                DetalleProducto prod = detalleProductoRepo.findById(detDto.getIdDetProd())
+                        .orElseThrow(() -> new IllegalArgumentException("DetalleProducto no válido"));
+                det.setDetalleProducto(prod);
+                
+                // Si el front no manda el precio, lo sacamos del catálogo o usamos el del DTO si lo enviaron (y confiamos).
+                // Mejor tomarlo directo del producto para evitar alteraciones de precio desde el frontend.
+                Float precioUnit = prod.getPrecio();
+                det.setPrecioUnitario(precioUnit);
+                
+                Float sub = precioUnit * det.getCantidad();
+                det.setSubtotal(sub);
+                
+                total += sub;
+                
+                detallePedidoRepo.save(det);
+            }
         }
         
+        pedido.setTotal(total);
         pedidoRepo.save(pedido);
     }
 
+    @Transactional
     public void actualizar(PedidoDTO pedido) {
         Optional<Pedido> OptPedido = pedidoRepo.findByUuid(pedido.getUuid());
         if (OptPedido.isPresent()) {
             Pedido entidad = OptPedido.get();
-            // Recalcular total a partir de los detalles asociados (no usar el valor pasado en el DTO)
-            float suma = 0f;
-            java.util.List<com.boutique.model.DetallePedido> detalles = detallePedidoRepo.findByPedido(entidad);
-            if (detalles != null) {
-                for (com.boutique.model.DetallePedido dp : detalles) {
-                    if (dp.getSubtotal() != null) suma += dp.getSubtotal();
-                }
-            }
-            entidad.setTotal(suma);
+            
             entidad.setEstado(pedido.getEstado());
             entidad.setBrendaRV(pedido.getBrendaRV());
             entidad.setJoseArmandoBM(pedido.getJoseArmandoBM());
             entidad.setLizbethCL(pedido.getLizbethCL());
             entidad.setMairaPE(pedido.getMairaPE());
+            
+            entidad = pedidoRepo.save(entidad);
+            
+            // Recreamos los detalles
+            List<DetallePedido> actuales = detallePedidoRepo.findByPedido(entidad);
+            if (actuales != null) {
+                detallePedidoRepo.deleteAll(actuales);
+            }
+            
+            float total = 0f;
+            if (pedido.getDetalles() != null) {
+                for (DetallePedidoDTO detDto : pedido.getDetalles()) {
+                    DetallePedido det = new DetallePedido();
+                    det.setPedido(entidad);
+                    det.setCantidad(detDto.getCantidad());
+                    
+                    DetalleProducto prod = detalleProductoRepo.findById(detDto.getIdDetProd())
+                            .orElseThrow(() -> new IllegalArgumentException("DetalleProducto no válido"));
+                    det.setDetalleProducto(prod);
+                    
+                    Float precioUnit = prod.getPrecio();
+                    det.setPrecioUnitario(precioUnit);
+                    
+                    Float sub = precioUnit * det.getCantidad();
+                    det.setSubtotal(sub);
+                    
+                    total += sub;
+                    
+                    detallePedidoRepo.save(det);
+                }
+            }
+            
+            entidad.setTotal(total);
             pedidoRepo.save(entidad);
         } else {
             throw new EntityNotFoundException("Pedido no encontrado con el UUID: " + pedido.getUuid());
         }
     }
 
+    @Transactional
     public void borrar(UUID uuid) {
         Optional<Pedido> OptPedido = pedidoRepo.findByUuid(uuid);
         if (OptPedido.isPresent()) {
             Pedido pedido = OptPedido.get();
-            // Validar que no hay detalles de pedido asociados
-            long detallesPedidoCount = detallePedidoRepo.countByPedido(pedido);
-            if (detallesPedidoCount > 0) {
-                throw new ReferencedEntityException(
-                    "No se puede eliminar este pedido porque tiene " + detallesPedidoCount + " detalle(s) asociado(s)."
-                );
-            }
+            detallePedidoRepo.deleteByPedido(pedido);
             pedidoRepo.delete(pedido);
         } else {
             throw new EntityNotFoundException("Pedido no encontrado con UUID: " + uuid);

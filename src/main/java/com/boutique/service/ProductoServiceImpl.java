@@ -6,13 +6,20 @@ import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
 
+import org.springframework.transaction.annotation.Transactional;
+
+import com.boutique.dto.DetalleProductoDTO;
 import com.boutique.dto.ProductoDTO;
 import com.boutique.model.Producto;
+import com.boutique.model.DetalleProducto;
 import com.boutique.model.Categoria;
+import com.boutique.model.Color;
+import com.boutique.model.Talla;
 import com.boutique.repo.ProductoRepo;
 import com.boutique.repo.CategoriaRepo;
 import com.boutique.repo.DetalleProductoRepo;
-import com.boutique.exception.ReferencedEntityException;
+import com.boutique.repo.ColorRepo;
+import com.boutique.repo.TallaRepo;
 
 @Service
 public class ProductoServiceImpl implements ProductoService {
@@ -26,12 +33,19 @@ public class ProductoServiceImpl implements ProductoService {
     @Autowired
     private DetalleProductoRepo detalleProductoRepo;
 
+    @Autowired
+    private ColorRepo colorRepo;
+
+    @Autowired
+    private TallaRepo tallaRepo;
+
     @Override
     public List<Producto> listar() {
         return productoRepo.findAll();
     }
 
     @Override
+    @Transactional
     public void guardar(ProductoDTO dto) {
         Producto producto = new Producto();
         producto.setNombre(dto.getNombre());
@@ -46,7 +60,27 @@ public class ProductoServiceImpl implements ProductoService {
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no válida"));
         producto.setCategoria(cat);
 
-        productoRepo.save(producto);
+        producto = productoRepo.save(producto);
+        
+        // Guardar detalles
+        if (dto.getDetalles() != null) {
+            for (DetalleProductoDTO detDto : dto.getDetalles()) {
+                DetalleProducto det = new DetalleProducto();
+                det.setProducto(producto);
+                det.setCantidad(detDto.getCantidad());
+                det.setPrecio(detDto.getPrecio());
+                
+                Color color = colorRepo.findById(detDto.getIdColor())
+                        .orElseThrow(() -> new IllegalArgumentException("Color no válido"));
+                det.setColor(color);
+                
+                Talla talla = tallaRepo.findById(detDto.getIdTalla())
+                        .orElseThrow(() -> new IllegalArgumentException("Talla no válida"));
+                det.setTalla(talla);
+                
+                detalleProductoRepo.save(det);
+            }
+        }
     }
 
     @Override
@@ -56,6 +90,7 @@ public class ProductoServiceImpl implements ProductoService {
     }
 
     @Override
+    @Transactional
     public void actualizar(ProductoDTO dto) {
         Producto producto = productoRepo.findByUuid(dto.getUuid())
                 .orElseThrow(() -> new IllegalArgumentException("Producto no encontrado"));
@@ -71,20 +106,43 @@ public class ProductoServiceImpl implements ProductoService {
                 .orElseThrow(() -> new IllegalArgumentException("Categoría no válida"));
         producto.setCategoria(cat);
 
-        productoRepo.save(producto);
+        producto = productoRepo.save(producto);
+        
+        // Actualizar detalles (por simplicidad: borrar existentes y recrear, o actualizar si envían ID)
+        // Eliminamos los detalles anteriores para reemplazarlos con los nuevos del formulario.
+        List<DetalleProducto> actuales = detalleProductoRepo.findByProducto(producto);
+        if (actuales != null) {
+            detalleProductoRepo.deleteAll(actuales);
+        }
+        
+        if (dto.getDetalles() != null) {
+            for (DetalleProductoDTO detDto : dto.getDetalles()) {
+                DetalleProducto det = new DetalleProducto();
+                det.setProducto(producto);
+                det.setCantidad(detDto.getCantidad());
+                det.setPrecio(detDto.getPrecio());
+                
+                Color color = colorRepo.findById(detDto.getIdColor())
+                        .orElseThrow(() -> new IllegalArgumentException("Color no válido"));
+                det.setColor(color);
+                
+                Talla talla = tallaRepo.findById(detDto.getIdTalla())
+                        .orElseThrow(() -> new IllegalArgumentException("Talla no válida"));
+                det.setTalla(talla);
+                
+                detalleProductoRepo.save(det);
+            }
+        }
     }
     
+    @Transactional
     public void borrar(UUID uuid) {
         Optional<Producto> optProducto = productoRepo.findByUuid(uuid);
         if (optProducto.isPresent()) {
             Producto producto = optProducto.get();
-            // Validar que no hay detalles de producto asociados
-            long detallesCount = detalleProductoRepo.countByProducto(producto);
-            if (detallesCount > 0) {
-                throw new ReferencedEntityException(
-                    "No se puede eliminar este producto porque está siendo utilizado en " + detallesCount + " detalle(s) de producto."
-                );
-            }
+            // Eliminación en cascada de los detalles del producto
+            detalleProductoRepo.deleteByProducto(producto);
+            // Eliminación del producto padre
             productoRepo.delete(producto);
         } else {
             throw new jakarta.persistence.EntityNotFoundException("Producto no encontrado con UUID: " + uuid);

@@ -8,7 +8,7 @@ import jakarta.validation.constraints.NotNull;
 public class DetalleProductoDTO {
     private Long idDetProd;
 
-    @NotNull(message = "El producto es obligatorio")
+
     private Long idProducto;
 
     @NotNull(message = "La talla es obligatoria")

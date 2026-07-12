@@ -49,7 +49,6 @@
                 <thead>
                     <tr>
                         <th>Fecha</th>
-                        <th>UUID</th>
                         <th>Total</th>
                         <th>Estado</th>
                         <th>Detalles del Pedido</th>
@@ -58,12 +57,11 @@
                 </thead>
                 <tbody>
                     <tr th:each="v : ${ventas}">
-						<td th:text="${#temporals.format(v.fechaHora, 'dd/MM/yyyy hh:mm a')}"></td>
-						<td th:text="${v.uuid}"></td>		
+						<td th:text="${#temporals.format(v.fechaHora, 'dd/MM/yyyy hh:mm a')}"></td>	
                         <td th:text="${v.total}"></td>
                         <td th:text="${v.estado}"></td>
                         <td th:text="${v.nLineas}"></td>
-                        <td><a class="btn btn-sm btn-outline-secondary" th:href="@{/reportes/ventas/{uuid}(uuid=${v.uuid})}">Detalle</a></td>
+                        <td><a class="btn btn-sm btn-outline-info" th:href="@{/reportes/ventas/{uuid}(uuid=${v.uuid})}">Detalle</a></td>
                     </tr>
                 </tbody>
             </table>
