@@ -28,9 +28,6 @@ public class DetallePedidoService {
     @Autowired
     private DetalleProductoRepo detalleProductoRepo;
     
-    @Autowired
-    private com.boutique.repo.DetallePedidoRepo detalleRepo;
-
     public List<DetallePedido> listar() {
         return detallePedidoRepo.findAll();
     }

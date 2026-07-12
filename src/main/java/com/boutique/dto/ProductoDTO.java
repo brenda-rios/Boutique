@@ -3,6 +3,9 @@ package com.boutique.dto;
 import java.util.UUID;
 import jakarta.validation.constraints.NotBlank;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 public class ProductoDTO {
     private Long idProducto;
@@ -19,6 +22,9 @@ public class ProductoDTO {
     private String joseArmandoBM;
     private String lizbethCL;
     private String mairaPE;
+
+
+    private List<@Valid DetalleProductoDTO> detalles = new ArrayList<>();
 
     // CORRECCIÓN: Constructor vacío explícito obligatorio para Thymeleaf
     public ProductoDTO() {
@@ -95,5 +101,13 @@ public class ProductoDTO {
 
     public void setMairaPE(String mairaPE) {
         this.mairaPE = mairaPE;
+    }
+
+    public List<DetalleProductoDTO> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetalleProductoDTO> detalles) {
+        this.detalles = detalles;
     }
 }

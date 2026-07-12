@@ -5,8 +5,10 @@ import java.util.UUID;
 
 import com.boutique.enums.Estado;
 
-import jakarta.validation.constraints.Min;
 import jakarta.validation.constraints.NotNull;
+import jakarta.validation.Valid;
+import java.util.ArrayList;
+import java.util.List;
 
 public class PedidoDTO {
 
@@ -16,8 +18,6 @@ public class PedidoDTO {
 
     private LocalDateTime fechaHora;
 
-    @NotNull(message = "El total es obligatorio")
-    @Min(value = 0, message = "El total no puede ser negativo")
     private Float total;
 
     @NotNull(message = "El estado es obligatorio")
@@ -29,6 +29,9 @@ public class PedidoDTO {
     private String mairaPE;
 
     private String integranteSeleccionado;
+
+    
+    private List<@Valid DetallePedidoDTO> detalles = new ArrayList<>();
 
     // Getters y Setters
     public Long getIdPedido() { return idPedido; }
@@ -80,5 +83,13 @@ public class PedidoDTO {
 
     public void setIntegranteSeleccionado(String integranteSeleccionado) {
         this.integranteSeleccionado = integranteSeleccionado;
+    }
+
+    public List<DetallePedidoDTO> getDetalles() {
+        return detalles;
+    }
+
+    public void setDetalles(List<DetallePedidoDTO> detalles) {
+        this.detalles = detalles;
     }
 }

@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Formulario Pedido</title>
@@ -19,19 +19,19 @@
 
             <div class="mb-3">
                 <label class="form-label">Integrante Brenda RV:</label>
-                <input type="text" class="form-control" th:field="*{brendaRV}" />
+                <input type="text" class="form-control" th:field="*{brendaRV}" required/>
             </div>
             <div class="mb-3">
                 <label class="form-label">Integrante Jose Armando BM:</label>
-                <input type="text" class="form-control" th:field="*{joseArmandoBM}" />
+                <input type="text" class="form-control" th:field="*{joseArmandoBM}" required/>
             </div>
             <div class="mb-3">
                 <label class="form-label">Integrante Lizbeth CL:</label>
-                <input type="text" class="form-control" th:field="*{lizbethCL}" />
+                <input type="text" class="form-control" th:field="*{lizbethCL}" required/>
             </div>
             <div class="mb-3">
                 <label class="form-label">Integrante Maira PE:</label>
-                <input type="text" class="form-control" th:field="*{mairaPE}" />
+                <input type="text" class="form-control" th:field="*{mairaPE}" required/>
             </div>
 
             <div class="mb-3">
@@ -42,9 +42,169 @@
                 <div class="text-danger" th:if="${#fields.hasErrors('estado')}" th:errors="*{estado}">Error</div>
             </div>
 
-            <button type="submit" class="btn btn-success">Guardar</button>
-            <a th:href="@{/rutaPedidos/listar}" class="btn btn-secondary">Cancelar</a>
+            <hr>
+            <hr>
+            <h3>Detalles del Pedido</h3>
+            
+            <!-- Buscador Async -->
+            <div class="card mb-3">
+                <div class="card-body">
+                    <h5 class="card-title">Buscar Producto para Añadir</h5>
+                    <div class="row g-3 align-items-end">
+                        <div class="col-md-3">
+                            <label class="form-label">Nombre:</label>
+							<input type="text" id="filtroNombre" class="form-control" placeholder="Buscar por nombre..." 
+							       oninput="filtrarProductos()" 
+							       onkeydown="if(event.key === 'Enter') { event.preventDefault(); filtrarProductos(); }">
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Categoría:</label>
+                            <select id="filtroCategoria" class="form-select" onchange="filtrarProductos()">
+                                <option value="">Todas</option>
+                                <option th:each="c : ${listaCategorias}" th:value="${c.idCategoria}" th:text="${c.nombre}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <label class="form-label">Talla:</label>
+                            <select id="filtroTalla" class="form-select" onchange="filtrarProductos()">
+                                <option value="">Todas</option>
+                                <option th:each="t : ${listaTallas}" th:value="${t.idTalla}" th:text="${t.nombre}"></option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-secondary w-100" onclick="filtrarProductos()">Buscar</button>
+                        </div>
+                    </div>
+                    <div class="row mt-3">
+                        <div class="col-md-9">
+                            <select id="productoResultado" class="form-select">
+                                <option value="">Cargando productos...</option>
+                            </select>
+                        </div>
+                        <div class="col-md-3">
+                            <button type="button" class="btn btn-primary w-100" onclick="agregarFila()">+ Añadir a la Tabla</button>
+                        </div>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Tabla de Detalles -->
+            <table class="table table-bordered" id="tablaDetalles">
+                <thead class="table-light">
+                    <tr>
+                        <th>Producto (Variante)</th>
+                        <th>Cantidad</th>
+                        <th>Acción</th>
+                    </tr>
+                </thead>
+                <tbody id="detallesBody">
+                    <tr th:each="det, stat : *{detalles}">
+                        <td>
+                            <input type="hidden" th:field="*{detalles[__${stat.index}__].idDetPed}" />
+                            <input type="hidden" th:field="*{detalles[__${stat.index}__].idDetProd}" />
+                            <span th:text="${det.descripcionProducto}"></span>
+                            <div class="text-danger" th:if="${#fields.hasErrors('detalles[__${stat.index}__].idDetProd')}" th:errors="*{detalles[__${stat.index}__].idDetProd}">Error</div>
+                        </td>
+                        <td>
+                            <input type="number" class="form-control" th:field="*{detalles[__${stat.index}__].cantidad}" required min="1"/>
+                            <div class="text-danger" th:if="${#fields.hasErrors('detalles[__${stat.index}__].cantidad')}" th:errors="*{detalles[__${stat.index}__].cantidad}">Error</div>
+                        </td>
+                        <td>
+                            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">-</button>
+                        </td>
+                    </tr>
+                </tbody>
+            </table>
+
+            <button type="submit" class="btn btn-success mt-3">Guardar Pedido</button>
+            <a th:href="@{/rutaPedidos/listar}" class="btn btn-secondary mt-3">Cancelar</a>
         </form>
     </div>
+    
+    <script>
+        function filtrarProductos() {
+            const nombre = document.getElementById('filtroNombre').value;
+            const idCategoria = document.getElementById('filtroCategoria').value;
+            const idTalla = document.getElementById('filtroTalla').value;
+            
+            const params = new URLSearchParams();
+            if (nombre) params.append('nombre', nombre);
+            if (idCategoria) params.append('idCategoria', idCategoria);
+            if (idTalla) params.append('idTalla', idTalla);
+
+            fetch('/api/productos/filtrar?' + params.toString())
+                .then(response => response.json())
+                .then(data => {
+                    const select = document.getElementById('productoResultado');
+                    select.innerHTML = '<option value="">Seleccione un Producto...</option>';
+                    data.forEach(item => {
+                        const option = document.createElement('option');
+                        option.value = item.idDetProd;
+                        option.textContent = item.texto;
+                        select.appendChild(option);
+                    });
+                })
+                .catch(error => console.error('Error fetching productos:', error));
+        }
+
+        function reindexarFilas() {
+            const tbody = document.getElementById('detallesBody');
+            const filas = tbody.querySelectorAll('tr');
+            filas.forEach((fila, index) => {
+                const inputs = fila.querySelectorAll('input');
+                inputs.forEach(input => {
+                    const name = input.getAttribute('name');
+                    if (name) {
+                        const nuevoName = name.replace(/detalles\[\d+\]/, `detalles[${index}]`);
+                        input.setAttribute('name', nuevoName);
+                        const id = input.getAttribute('id');
+                        if(id) {
+                            const nuevoId = id.replace(/detalles\d+\./, `detalles${index}.`);
+                            input.setAttribute('id', nuevoId);
+                        }
+                    }
+                });
+            });
+        }
+
+        function agregarFila() {
+            const select = document.getElementById('productoResultado');
+            const idDetProd = select.value;
+            const textoProducto = select.options[select.selectedIndex]?.text;
+
+            if (!idDetProd) {
+                alert('Debe buscar y seleccionar un producto primero.');
+                return;
+            }
+
+            const tbody = document.getElementById('detallesBody');
+            const index = tbody.querySelectorAll('tr').length;
+            
+            const tr = document.createElement('tr');
+            tr.innerHTML = `
+                <td>
+                    <input type="hidden" name="detalles[${index}].idDetPed" value="" />
+                    <input type="hidden" name="detalles[${index}].idDetProd" value="${idDetProd}" />
+                    <span>${textoProducto}</span>
+                </td>
+                <td>
+                    <input type="number" class="form-control" name="detalles[${index}].cantidad" value="1" required min="1"/>
+                </td>
+                <td>
+                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">-</button>
+                </td>
+            `;
+            tbody.appendChild(tr);
+        }
+
+        function eliminarFila(btn) {
+            btn.closest('tr').remove();
+            reindexarFilas();
+        }
+        
+        document.addEventListener('DOMContentLoaded', function() {
+            filtrarProductos();
+        });
+    </script>
 </body>
 </html>

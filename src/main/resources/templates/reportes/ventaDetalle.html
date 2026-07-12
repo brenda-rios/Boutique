@@ -10,7 +10,6 @@
     <div class="container mt-4">
         <h3>Detalle de Venta</h3>
         <div>
-            <p>Pedido: <strong th:text="${pedidoUuid}"></strong></p>
             <p th:if="${pedido != null}">Fecha: <span th:text="${pedido.fechaHora}"></span> &nbsp; Total: <span th:text="${pedido.total}"></span></p>
         </div>
 

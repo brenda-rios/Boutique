@@ -1,4 +1,4 @@
-﻿<!DOCTYPE html>
+<!DOCTYPE html>
 <html xmlns:th="http://www.thymeleaf.org">
 <head>
     <title>Catalogo Productos</title>
@@ -27,8 +27,9 @@
                     <td th:text="${prod.integranteSeleccionado}"></td>
                     <td th:text="${prod.categoria.nombre}"></td>
                     <td>
+                        <a th:href="@{'/rutaProductos/ver/' + ${prod.uuid}}" class="btn btn-sm btn-info text-white">Ver Detalles</a>
                         <a th:href="@{'/rutaProductos/editar/' + ${prod.uuid}}" class="btn btn-sm btn-warning">✏️ Editar</a>
-                        <a th:href="@{'/rutaProductos/eliminar/' + ${prod.uuid}}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto?');">🗑️ Eliminar</a>
+                        <a th:href="@{'/rutaProductos/eliminar/' + ${prod.uuid}}" class="btn btn-danger btn-sm" onclick="return confirm('¿Estás seguro de que deseas eliminar este producto y TODAS sus variantes? Esta acción no se puede deshacer.');">❌ Eliminar</a>
                     </td>
                 </tr>
             </tbody>

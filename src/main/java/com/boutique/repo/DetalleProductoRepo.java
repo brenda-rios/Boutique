@@ -1,5 +1,6 @@
 package com.boutique.repo;
 
+import java.util.List;
 import java.util.Optional;
 import java.util.UUID;
 
@@ -18,4 +19,6 @@ public interface DetalleProductoRepo extends JpaRepository<DetalleProducto, Long
 	long countByColor(Color color);
 	long countByTalla(Talla talla);
 	long countByProducto(Producto producto);
+	List<DetalleProducto> findByProducto(Producto producto);
+	void deleteByProducto(Producto producto);
 }
