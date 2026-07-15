@@ -19,7 +19,14 @@ public class GlobalExceptionHandler {
     @ExceptionHandler({ReferencedEntityException.class, DataIntegrityViolationException.class, IllegalArgumentException.class})
     public void handleReferenceError(Exception ex, HttpServletRequest req, HttpServletResponse resp) throws IOException {
         String referer = req.getHeader("referer");
-        String msg = ex.getMessage() == null ? "Operación inválida" : ex.getMessage();
+     // --- AQUÍ ESTÁ EL CAMBIO ---
+        String msg;
+        if (ex instanceof DataIntegrityViolationException) {
+            msg = "No se puede eliminar porque ha sido utilizado en un pedido.";
+        } else {
+            msg = ex.getMessage() == null ? "Operación inválida" : ex.getMessage();
+        }
+        // ---------------------------
         String encoded = URLEncoder.encode(msg, StandardCharsets.UTF_8);
         if (referer != null && !referer.isBlank()) {
             String sep = referer.contains("?") ? "&" : "?";

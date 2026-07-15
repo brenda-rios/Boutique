@@ -1,5 +1,7 @@
 package com.boutique.controller;
 
+import java.net.URLEncoder;
+import java.nio.charset.StandardCharsets;
 import java.util.List;
 import java.util.UUID;
 
@@ -147,10 +149,26 @@ public class ProductoController {
         return "redirect:/rutaProductos/listar";
     }
     
+
     @GetMapping("eliminar/{uuid}")
     public String metodoEliminar(@PathVariable("uuid") UUID uuid) {
-        productoService.borrar(uuid); 
-        return "redirect:/rutaProductos/listar";
+
+        try {
+            productoService.borrar(uuid);
+            return "redirect:/rutaProductos/listar";
+
+        } catch (IllegalStateException e) {
+
+            return "redirect:/rutaProductos/listar?errorMsg=" +
+                    URLEncoder.encode(e.getMessage(), StandardCharsets.UTF_8);
+
+        } catch (Exception e) {
+
+            return "redirect:/rutaProductos/listar?errorMsg=" +
+                    URLEncoder.encode(
+                            "Ocurrió un error inesperado al intentar eliminar el producto.",
+                            StandardCharsets.UTF_8);
+        }
     }
 
     @GetMapping("/api/productos/filtrar")

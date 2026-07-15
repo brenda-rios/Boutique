@@ -1,10 +1,12 @@
 package com.boutique.service;
 
 import java.time.LocalDateTime;
-import java.util.Arrays; 
+import java.util.Arrays;
+import java.util.HashSet;
 import java.util.List;
 import java.util.Objects;
 import java.util.Optional;
+import java.util.Set;
 import java.util.UUID;
 
 import org.modelmapper.ModelMapper;
@@ -48,96 +50,172 @@ public class PedidoService {
                 .toList();
     }
 
-    // 💡 Lógica mejorada idéntica a productos para autogenerar datos faltantes
+    
+    
     @Transactional
     public void guardar(PedidoDTO pedidoDTO) {
+
         Pedido pedido = mapper.map(pedidoDTO, Pedido.class);
-        
+
         if (pedido.getUuid() == null) {
             pedido.setUuid(UUID.randomUUID());
         }
+
         if (pedido.getFechaHora() == null) {
             pedido.setFechaHora(LocalDateTime.now());
         }
-        
+
         pedido = pedidoRepo.save(pedido);
 
         float total = 0f;
+
+        // Para evitar productos repetidos
+        Set<Long> idsProcesados = new HashSet<>();
+
         if (pedidoDTO.getDetalles() != null) {
+
             for (DetallePedidoDTO detDto : pedidoDTO.getDetalles()) {
+
+                // Validar productos duplicados
+                if (!idsProcesados.add(detDto.getIdDetProd())) {
+                    throw new IllegalArgumentException("El producto ya está incluido en este pedido.");
+                }
+
+                // Validar cantidad
+                if (detDto.getCantidad() <= 0) {
+                    throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+                }
+
                 DetallePedido det = new DetallePedido();
                 det.setPedido(pedido);
                 det.setCantidad(detDto.getCantidad());
-                
+
                 DetalleProducto prod = detalleProductoRepo.findById(detDto.getIdDetProd())
-                        .orElseThrow(() -> new IllegalArgumentException("DetalleProducto no válido"));
+                        .orElseThrow(() -> new IllegalArgumentException("DetalleProducto no válido."));
+
+                // Validar stock
+                if (prod.getCantidad() < detDto.getCantidad()) {
+                    throw new IllegalArgumentException("Stock insuficiente para: " + prod.getProducto().getNombre());
+                }
+
+                // Descontar stock
+                prod.setCantidad(prod.getCantidad() - detDto.getCantidad());
+                detalleProductoRepo.save(prod);
+
                 det.setDetalleProducto(prod);
-                
-                // Si el front no manda el precio, lo sacamos del catálogo o usamos el del DTO si lo enviaron (y confiamos).
-                // Mejor tomarlo directo del producto para evitar alteraciones de precio desde el frontend.
+
                 Float precioUnit = prod.getPrecio();
                 det.setPrecioUnitario(precioUnit);
-                
+
                 Float sub = precioUnit * det.getCantidad();
                 det.setSubtotal(sub);
-                
+
                 total += sub;
-                
+
                 detallePedidoRepo.save(det);
             }
         }
-        
+
         pedido.setTotal(total);
         pedidoRepo.save(pedido);
     }
 
     @Transactional
     public void actualizar(PedidoDTO pedido) {
+
         Optional<Pedido> OptPedido = pedidoRepo.findByUuid(pedido.getUuid());
+
         if (OptPedido.isPresent()) {
+
             Pedido entidad = OptPedido.get();
-            
+
+            // 1. REGRESAR STOCK DE LOS DETALLES VIEJOS
+            List<DetallePedido> actuales = detallePedidoRepo.findByPedido(entidad);
+
+            if (actuales != null && !actuales.isEmpty()) {
+
+                // Mantengo exactamente tu lógica original
+                detallePedidoRepo.deleteAll(actuales);
+
+                for (DetallePedido det : actuales) {
+
+                    DetalleProducto prod = det.getDetalleProducto();
+
+                    DetalleProducto prodActualizado = detalleProductoRepo
+                            .findById(prod.getIdDetProd())
+                            .orElse(prod);
+
+                    prodActualizado.setCantidad(
+                            prodActualizado.getCantidad() + det.getCantidad());
+
+                    detalleProductoRepo.save(prodActualizado);
+                }
+            }
+
+            // 2. ACTUALIZAR DATOS DEL PEDIDO
             entidad.setEstado(pedido.getEstado());
             entidad.setBrendaRV(pedido.getBrendaRV());
             entidad.setJoseArmandoBM(pedido.getJoseArmandoBM());
             entidad.setLizbethCL(pedido.getLizbethCL());
             entidad.setMairaPE(pedido.getMairaPE());
-            
+
             entidad = pedidoRepo.save(entidad);
-            
-            // Recreamos los detalles
-            List<DetallePedido> actuales = detallePedidoRepo.findByPedido(entidad);
-            if (actuales != null) {
-                detallePedidoRepo.deleteAll(actuales);
-            }
-            
+
             float total = 0f;
+
+            // Evitar productos repetidos
+            Set<Long> idsProcesados = new HashSet<>();
+
             if (pedido.getDetalles() != null) {
+
                 for (DetallePedidoDTO detDto : pedido.getDetalles()) {
+
+                    // Validar duplicados
+                    if (!idsProcesados.add(detDto.getIdDetProd())) {
+                        throw new IllegalArgumentException("El producto ya está incluido en este pedido.");
+                    }
+
+                    // Validar cantidad
+                    if (detDto.getCantidad() <= 0) {
+                        throw new IllegalArgumentException("La cantidad debe ser mayor a cero.");
+                    }
+
                     DetallePedido det = new DetallePedido();
                     det.setPedido(entidad);
                     det.setCantidad(detDto.getCantidad());
-                    
+
                     DetalleProducto prod = detalleProductoRepo.findById(detDto.getIdDetProd())
-                            .orElseThrow(() -> new IllegalArgumentException("DetalleProducto no válido"));
+                            .orElseThrow(() -> new IllegalArgumentException("DetalleProducto no válido."));
+
+                    // Validar stock
+                    if (prod.getCantidad() < detDto.getCantidad()) {
+                        throw new IllegalArgumentException("Stock insuficiente para: " + prod.getProducto().getNombre());
+                    }
+
+                    // Descontar stock
+                    prod.setCantidad(prod.getCantidad() - detDto.getCantidad());
+                    detalleProductoRepo.save(prod);
+
                     det.setDetalleProducto(prod);
-                    
+
                     Float precioUnit = prod.getPrecio();
                     det.setPrecioUnitario(precioUnit);
-                    
+
                     Float sub = precioUnit * det.getCantidad();
                     det.setSubtotal(sub);
-                    
+
                     total += sub;
-                    
+
                     detallePedidoRepo.save(det);
                 }
             }
-            
+
             entidad.setTotal(total);
             pedidoRepo.save(entidad);
+
         } else {
-            throw new EntityNotFoundException("Pedido no encontrado con el UUID: " + pedido.getUuid());
+            throw new EntityNotFoundException(
+                    "Pedido no encontrado con el UUID: " + pedido.getUuid());
         }
     }
 
@@ -146,6 +224,19 @@ public class PedidoService {
         Optional<Pedido> OptPedido = pedidoRepo.findByUuid(uuid);
         if (OptPedido.isPresent()) {
             Pedido pedido = OptPedido.get();
+            
+            
+         // --- Manejo de cantidades ---
+            List<DetallePedido> detalles = detallePedidoRepo.findByPedido(pedido);
+            for (DetallePedido det : detalles) {
+                DetalleProducto prod = det.getDetalleProducto();
+                prod.setCantidad(prod.getCantidad() + det.getCantidad()); // Regresamos stock
+                detalleProductoRepo.save(prod);
+            }
+            // ------------------------------------
+            
+            
+            
             detallePedidoRepo.deleteByPedido(pedido);
             pedidoRepo.delete(pedido);
         } else {

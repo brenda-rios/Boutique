@@ -18,4 +18,5 @@ public interface DetallePedidoRepo extends JpaRepository<DetallePedido, Long> {
     long countByDetalleProducto(DetalleProducto detalleProducto);
     long countByPedido(Pedido pedido);
     void deleteByPedido(Pedido pedido);
+    boolean existsByDetalleProducto(DetalleProducto detalleProducto);
 }
