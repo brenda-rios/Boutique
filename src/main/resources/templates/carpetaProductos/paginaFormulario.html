@@ -8,7 +8,13 @@
     <div th:replace="~{fragmentos :: menu}"></div>
     <div class="container mt-4">
         <h1 th:text="${uuid != null ? 'Editar Producto' : 'Nuevo Producto'}" class="mb-4"></h1>
-        <form th:action="${uuid == null ? '/rutaProductos/guardar' : '/rutaProductos/actualizar'}" method="post" th:object="${producto}">
+		
+		<div th:if="${param.errorMsg}" class="alert alert-danger alert-dismissible fade show" role="alert">
+		    <strong>¡Atención!</strong> <span th:text="${param.errorMsg}"></span>
+		    <button type="button" class="btn-close" data-bs-dismiss="alert" aria-label="Close"></button>
+		</div>
+		
+        <form id="formProducto" th:action="${uuid == null ? '/rutaProductos/guardar' : '/rutaProductos/actualizar'}" method="post" th:object="${producto}">
             <input type="hidden" th:field="*{uuid}" />
             <input type="hidden" th:field="*{idProducto}" />
 
@@ -92,11 +98,11 @@
                     </tr>
                 </tbody>
             </table>
-            <button type="button" class="btn btn-primary mb-3" onclick="agregarFila()">+ Añadir Detalle</button>
+            <button type="button" class="btn btn-primary mb-4" onclick="agregarFila()">+ Añadir Detalle</button>
 
 
-            <button type="submit" class="btn btn-success">Guardar</button>
-            <a th:href="@{/rutaProductos/listar}" class="btn btn-secondary">Cancelar</a>
+            <button type="submit" class="btn btn-success mb-4">Guardar</button>
+            <a th:href="@{/rutaProductos/listar}" class="btn btn-secondary mb-4">Cancelar</a>
         </form>
     </div>
 
@@ -156,6 +162,45 @@
                 alert('Debe haber al menos un detalle.');
             }
         }
+		
+		
+		
+
+		document.addEventListener("DOMContentLoaded", function() {
+		    const form = document.getElementById("formProducto");
+		    
+		    if(form) {
+		        form.addEventListener("submit", function(event) {
+		            // Usamos un Set para almacenar las combinaciones únicas
+		            let combinacionesVistas = new Set();
+		            
+		            // Seleccionamos todos los selects de Talla y Color en tu tabla dinámica
+		            // Ajusta los selectores si tus name="" o class="" son diferentes
+		            let selectTallas = document.querySelectorAll('select[name$=".idTalla"]');
+		            let selectColores = document.querySelectorAll('select[name$=".idColor"]');
+		            
+		            for (let i = 0; i < selectTallas.length; i++) {
+		                let idTalla = selectTallas[i].value;
+		                let idColor = selectColores[i].value;
+		                
+		                // Solo validamos si ambos campos tienen un valor seleccionado
+		                if (idTalla && idColor) {
+		                    let combinacionUnica = idTalla + "-" + idColor;
+		                    
+		                    if (combinacionesVistas.has(combinacionUnica)) {
+		                        // Si ya existe, detenemos el envío del formulario al backend
+		                        event.preventDefault(); 
+		                        alert("Error: Has ingresado la misma combinación de Talla y Color más de una vez. Por favor, revisa las variantes de tu producto.");
+		                        return; // Salimos de la función
+		                    }
+		                    // Si no existe, la recordamos para la siguiente iteración
+		                    combinacionesVistas.add(combinacionUnica);
+		                }
+		            }
+		        });
+		    }
+		});
+		
     </script>
 </body>
 </html>

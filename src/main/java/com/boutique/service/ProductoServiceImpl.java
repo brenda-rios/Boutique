@@ -1,7 +1,6 @@
 package com.boutique.service;
 
 import java.util.List;
-import java.util.Optional;
 import java.util.UUID;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.stereotype.Service;
@@ -19,6 +18,7 @@ import com.boutique.repo.ProductoRepo;
 import com.boutique.repo.CategoriaRepo;
 import com.boutique.repo.DetalleProductoRepo;
 import com.boutique.repo.ColorRepo;
+import com.boutique.repo.DetallePedidoRepo;
 import com.boutique.repo.TallaRepo;
 
 @Service
@@ -38,6 +38,9 @@ public class ProductoServiceImpl implements ProductoService {
 
     @Autowired
     private TallaRepo tallaRepo;
+    
+    @Autowired
+    private DetallePedidoRepo detallePedidoRepo;
 
     @Override
     public List<Producto> listar() {
@@ -62,9 +65,20 @@ public class ProductoServiceImpl implements ProductoService {
 
         producto = productoRepo.save(producto);
         
-        // Guardar detalles
+        // Guardar detalles con Validación de Duplicados
         if (dto.getDetalles() != null) {
+            // Estructura para recordar las combinaciones y evitar repetidos
+            java.util.Set<String> combinacionesVistas = new java.util.HashSet<>();
+            
             for (DetalleProductoDTO detDto : dto.getDetalles()) {
+                // Creamos una llave única, ej: "2-4" (IdTalla-IdColor)
+                String combinacionUnica = detDto.getIdTalla() + "-" + detDto.getIdColor();
+                
+                // Si el HashSet no puede agregarlo, es porque ya existe esa combinación en la lista
+                if (!combinacionesVistas.add(combinacionUnica)) {
+                    throw new IllegalArgumentException("Error: No puedes registrar la misma combinación de Talla y Color más de una vez en este producto.");
+                }
+
                 DetalleProducto det = new DetalleProducto();
                 det.setProducto(producto);
                 det.setCantidad(detDto.getCantidad());
@@ -108,15 +122,23 @@ public class ProductoServiceImpl implements ProductoService {
 
         producto = productoRepo.save(producto);
         
-        // Actualizar detalles (por simplicidad: borrar existentes y recrear, o actualizar si envían ID)
         // Eliminamos los detalles anteriores para reemplazarlos con los nuevos del formulario.
         List<DetalleProducto> actuales = detalleProductoRepo.findByProducto(producto);
         if (actuales != null) {
             detalleProductoRepo.deleteAll(actuales);
         }
         
+        // Guardar los nuevos detalles con Validación de Duplicados
         if (dto.getDetalles() != null) {
+            java.util.Set<String> combinacionesVistas = new java.util.HashSet<>();
+
             for (DetalleProductoDTO detDto : dto.getDetalles()) {
+                // Validación estricta
+                String combinacionUnica = detDto.getIdTalla() + "-" + detDto.getIdColor();
+                if (!combinacionesVistas.add(combinacionUnica)) {
+                    throw new IllegalArgumentException("Error al actualizar: Has ingresado variantes duplicadas con la misma Talla y Color.");
+                }
+
                 DetalleProducto det = new DetalleProducto();
                 det.setProducto(producto);
                 det.setCantidad(detDto.getCantidad());
@@ -135,17 +157,27 @@ public class ProductoServiceImpl implements ProductoService {
         }
     }
     
+    @Override
     @Transactional
     public void borrar(UUID uuid) {
-        Optional<Producto> optProducto = productoRepo.findByUuid(uuid);
-        if (optProducto.isPresent()) {
-            Producto producto = optProducto.get();
-            // Eliminación en cascada de los detalles del producto
-            detalleProductoRepo.deleteByProducto(producto);
-            // Eliminación del producto padre
-            productoRepo.delete(producto);
-        } else {
-            throw new jakarta.persistence.EntityNotFoundException("Producto no encontrado con UUID: " + uuid);
+        Producto producto = productoRepo.findByUuid(uuid)
+                .orElseThrow(() -> new jakarta.persistence.EntityNotFoundException("Producto no encontrado"));
+
+        // --- VALIDACIÓN DE SEGURIDAD (AQUÍ ESTÁ LA LÓGICA) ---
+        // Obtenemos todas las variantes (DetalleProducto) de este producto
+        List<DetalleProducto> variantes = detalleProductoRepo.findByProducto(producto);
+        
+        // Revisamos si alguna de esas variantes tiene algún pedido asociado
+        for (DetalleProducto variante : variantes) {
+            if (detallePedidoRepo.existsByDetalleProducto(variante)) {
+            	throw new IllegalStateException(
+                        "No se puede eliminar este producto porque una o más de sus variantes ya fueron utilizadas en pedidos registrados.");
+                            }
         }
+        // -----------------------------------------------------
+
+        // Si el código llega aquí es porque NO tiene pedidos, podemos borrar tranquilos
+        detalleProductoRepo.deleteByProducto(producto);
+        productoRepo.delete(producto);
     }
 }

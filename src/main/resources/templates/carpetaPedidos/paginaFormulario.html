@@ -8,7 +8,7 @@
     <div th:replace="~{fragmentos :: menu}"></div>
     <div class="container mt-4">
         <h1 th:text="${uuid != null} ? 'Editar Pedido' : 'Nuevo Pedido'" class="mb-4"></h1>
-        <form th:action="${uuid == null} ? @{/rutaPedidos/guardar} : @{/rutaPedidos/actualizar}" method="post" th:object="${pedido}">
+        <form id="formPedido" th:action="${uuid == null} ? @{/rutaPedidos/guardar} : @{/rutaPedidos/actualizar}" method="post" th:object="${pedido}">
             <input type="hidden" th:field="*{uuid}" />
 
 			<div class="mb-3" th:if="${uuid != null}">
@@ -82,7 +82,7 @@
                             </select>
                         </div>
                         <div class="col-md-3">
-                            <button type="button" class="btn btn-primary w-100" onclick="agregarFila()">+ Añadir a la Tabla</button>
+                            <button type="button" class="btn btn-primary w-100" onclick="agregarFila()">+ Añadir al pedido</button>
                         </div>
                     </div>
                 </div>
@@ -92,7 +92,7 @@
             <table class="table table-bordered" id="tablaDetalles">
                 <thead class="table-light">
                     <tr>
-                        <th>Producto (Variante)</th>
+                        <th>Producto</th>
                         <th>Cantidad</th>
                         <th>Acción</th>
                     </tr>
@@ -105,10 +105,12 @@
                             <span th:text="${det.descripcionProducto}"></span>
                             <div class="text-danger" th:if="${#fields.hasErrors('detalles[__${stat.index}__].idDetProd')}" th:errors="*{detalles[__${stat.index}__].idDetProd}">Error</div>
                         </td>
-                        <td>
-                            <input type="number" class="form-control" th:field="*{detalles[__${stat.index}__].cantidad}" required min="1"/>
-                            <div class="text-danger" th:if="${#fields.hasErrors('detalles[__${stat.index}__].cantidad')}" th:errors="*{detalles[__${stat.index}__].cantidad}">Error</div>
-                        </td>
+						<td>
+						    <input type="number" class="form-control" th:field="*{detalles[__${stat.index}__].cantidad}" 
+						           th:data-inicial="*{detalles[__${stat.index}__].cantidad}"
+						           required min="1" oninput="validarCantidad(this)"/>
+						    <div class="text-danger" th:if="${#fields.hasErrors('detalles[__${stat.index}__].cantidad')}" th:errors="*{detalles[__${stat.index}__].cantidad}">Error</div>
+						</td>
                         <td>
                             <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">-</button>
                         </td>
@@ -116,36 +118,65 @@
                 </tbody>
             </table>
 
-            <button type="submit" class="btn btn-success mt-3">Guardar Pedido</button>
-            <a th:href="@{/rutaPedidos/listar}" class="btn btn-secondary mt-3">Cancelar</a>
+            <button type="submit" class="btn btn-success mt-3 mb-4">Guardar Pedido</button>
+            <a th:href="@{/rutaPedidos/listar}" class="btn btn-secondary mt-3 mb-4">Cancelar</a>
         </form>
     </div>
     
     <script>
-        function filtrarProductos() {
-            const nombre = document.getElementById('filtroNombre').value;
-            const idCategoria = document.getElementById('filtroCategoria').value;
-            const idTalla = document.getElementById('filtroTalla').value;
-            
-            const params = new URLSearchParams();
-            if (nombre) params.append('nombre', nombre);
-            if (idCategoria) params.append('idCategoria', idCategoria);
-            if (idTalla) params.append('idTalla', idTalla);
+		function filtrarProductos() {
+		    const nombre = document.getElementById('filtroNombre').value;
+		    const idCategoria = document.getElementById('filtroCategoria').value;
+		    const idTalla = document.getElementById('filtroTalla').value;
+		    
+		    const params = new URLSearchParams();
+		    if (nombre) params.append('nombre', nombre);
+		    if (idCategoria) params.append('idCategoria', idCategoria);
+		    if (idTalla) params.append('idTalla', idTalla);
 
-            fetch('/api/productos/filtrar?' + params.toString())
-                .then(response => response.json())
-                .then(data => {
-                    const select = document.getElementById('productoResultado');
-                    select.innerHTML = '<option value="">Seleccione un Producto...</option>';
-                    data.forEach(item => {
-                        const option = document.createElement('option');
-                        option.value = item.idDetProd;
-                        option.textContent = item.texto;
-                        select.appendChild(option);
-                    });
-                })
-                .catch(error => console.error('Error fetching productos:', error));
-        }
+		    fetch('/api/productos/filtrar?' + params.toString())
+		        .then(response => response.json())
+		        .then(data => {
+		            const select = document.getElementById('productoResultado');
+		            select.innerHTML = '<option value="">Seleccione un Producto...</option>';
+		            data.forEach(item => {
+		                const option = document.createElement('option');
+		                option.value = item.idDetProd;
+		                option.dataset.stock = item.cantidad; 
+		                option.textContent = `${item.texto} (Stock: ${item.cantidad})`;
+		                select.appendChild(option);
+		            });
+
+		            // --- NUEVA LÓGICA: Asignar el máximo a las filas que ya existen al editar ---
+		            asignarMaximoAExistentes(data);
+		            // -----------------------------------------------------------------------------
+		        })
+		        .catch(error => console.error('Error fetching productos:', error));
+		}
+
+		// NUEVA FUNCIÓN: Busca las filas existentes y les pone su límite real
+		function asignarMaximoAExistentes(data) {
+		    const filasExistentes = document.querySelectorAll('#detallesBody tr');
+		    
+		    filasExistentes.forEach(fila => {
+		        const inputProd = fila.querySelector('input[name$=".idDetProd"]');
+		        const inputCant = fila.querySelector('input[name$=".cantidad"]');
+
+		        // Si es una fila cargada desde la BD (tiene data-inicial)
+		        if (inputProd && inputCant && inputCant.hasAttribute('data-inicial')) {
+		            const idProd = parseInt(inputProd.value);
+		            const cantInicial = parseInt(inputCant.getAttribute('data-inicial'));
+
+		            // Buscamos el producto en la lista que nos devolvió el fetch
+		            const prodData = data.find(p => p.idDetProd === idProd);
+		            if (prodData) {
+		                // El máximo real es el stock disponible en BD + lo que ya estaba reservado en este pedido
+		                const maxReal = prodData.cantidad + cantInicial;
+		                inputCant.setAttribute('max', maxReal);
+		            }
+		        }
+		    });
+		}
 
         function reindexarFilas() {
             const tbody = document.getElementById('detallesBody');
@@ -167,36 +198,66 @@
             });
         }
 
-        function agregarFila() {
-            const select = document.getElementById('productoResultado');
-            const idDetProd = select.value;
-            const textoProducto = select.options[select.selectedIndex]?.text;
+		function agregarFila() {
+		    const select = document.getElementById('productoResultado');
+		    const optionSeleccionada = select.options[select.selectedIndex];
+		    const idDetProd = select.value;
+		    const textoProducto = optionSeleccionada.text;
+		    const stockMaximo = optionSeleccionada.dataset.stock; // Obtenemos el stock
 
-            if (!idDetProd) {
-                alert('Debe buscar y seleccionar un producto primero.');
-                return;
-            }
+		    if (!idDetProd) {
+		        alert('Debe buscar y seleccionar un producto primero.');
+		        return;
+		    }
 
-            const tbody = document.getElementById('detallesBody');
-            const index = tbody.querySelectorAll('tr').length;
-            
-            const tr = document.createElement('tr');
-            tr.innerHTML = `
-                <td>
-                    <input type="hidden" name="detalles[${index}].idDetPed" value="" />
-                    <input type="hidden" name="detalles[${index}].idDetProd" value="${idDetProd}" />
-                    <span>${textoProducto}</span>
-                </td>
-                <td>
-                    <input type="number" class="form-control" name="detalles[${index}].cantidad" value="1" required min="1"/>
-                </td>
-                <td>
-                    <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">-</button>
-                </td>
-            `;
-            tbody.appendChild(tr);
-        }
+		    // Validación de duplicados (tu código actual)
+		    const filasExistentes = document.querySelectorAll('#detallesBody input[name$=".idDetProd"]');
+		    for (let input of filasExistentes) {
+		        if (input.value === idDetProd) {
+		            alert('¡Este producto ya ha sido añadido al pedido!');
+		            return;
+		        }
+		    }
 
+		    const tbody = document.getElementById('detallesBody');
+		    const index = tbody.querySelectorAll('tr').length;
+		    
+		    const tr = document.createElement('tr');
+		    tr.innerHTML = `
+		        <td>
+		            <input type="hidden" name="detalles[${index}].idDetPed" value="" />
+		            <input type="hidden" name="detalles[${index}].idDetProd" value="${idDetProd}" />
+		            <span>${textoProducto}</span>
+		        </td>
+		        <td>
+		            <input type="number" class="form-control" name="detalles[${index}].cantidad" 
+		                   value="1" required min="1" max="${stockMaximo}" oninput="validarCantidad(this)"/>
+		        </td>
+		        <td>
+		            <button type="button" class="btn btn-danger btn-sm" onclick="eliminarFila(this)">-</button>
+		        </td>
+		    `;
+		    tbody.appendChild(tr);
+		}
+
+		function validarCantidad(input){
+
+		    let valor = parseInt(input.value);
+		    let max = parseInt(input.max);
+
+		    if(isNaN(valor)) return;
+
+		    if(valor < 1){
+		        input.value = 1;
+		        return;
+		    }
+
+		    if(valor > max){
+		        alert("No hay suficiente stock. Máximo disponible: " + max);
+		        input.value = max;
+		    }
+		}
+				
         function eliminarFila(btn) {
             btn.closest('tr').remove();
             reindexarFilas();
@@ -205,6 +266,18 @@
         document.addEventListener('DOMContentLoaded', function() {
             filtrarProductos();
         });
+		
+		
+		// --- NUEVA VALIDACIÓN: Evitar pedidos vacíos ---
+		        document.getElementById('formPedido').addEventListener('submit', function(event) {
+		            const tbody = document.getElementById('detallesBody');
+		            const filas = tbody.querySelectorAll('tr');
+		            
+		            if (filas.length === 0) {
+		                event.preventDefault(); // Detiene el envío del formulario al backend
+		                alert('¡Atención! No puedes guardar un pedido vacío. Añade al menos un producto a la tabla.');
+		            }
+		        });
     </script>
 </body>
 </html>

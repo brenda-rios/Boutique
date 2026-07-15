@@ -66,6 +66,8 @@ public class ProductoApiController {
                             " ($" + det.getPrecio() + ")";
                             
                     map.put("texto", textoVisible);
+                    map.put("cantidad", det.getCantidad());
+
                     return map;
                 })
                 .collect(Collectors.toList());
