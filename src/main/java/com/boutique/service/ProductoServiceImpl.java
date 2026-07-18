@@ -180,4 +180,11 @@ public class ProductoServiceImpl implements ProductoService {
         detalleProductoRepo.deleteByProducto(producto);
         productoRepo.delete(producto);
     }
+    
+    @Override
+    public List<Producto> listarPorCategoria(Long idCategoria) {
+        // Este método usa el repositorio para buscar productos que pertenezcan 
+        // al ID de la categoría que el usuario seleccionó en el filtro.
+        return productoRepo.findByCategoriaIdCategoria(idCategoria);
+    }
 }

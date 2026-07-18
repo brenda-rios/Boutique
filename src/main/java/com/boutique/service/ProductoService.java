@@ -11,4 +11,6 @@ public interface ProductoService {
     Producto getUuid(UUID uuid);
     void actualizar(ProductoDTO dto);
     void borrar(UUID uuid);
+    
+    List<Producto> listarPorCategoria(Long idCategoria);
 }

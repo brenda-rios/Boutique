@@ -48,10 +48,31 @@ public class ProductoController {
     private DetalleProductoRepo detalleProductoRepo;
 
     @GetMapping("listar")
-    public String metodoListar(Model model) {
-        var productos = productoService.listar();
+    public String metodoListar(Model model, 
+                               @RequestParam(value = "categoriaId", required = false) Long categoriaId) {
+        
+        // 1. Obtener los productos (TODOS o FILTRADOS por categoría)
+        List<Producto> productos;
+        if (categoriaId != null) {
+            // Si el usuario seleccionó una categoría, vamos al servicio a pedir los filtrados.
+            // NOTA: Usamos .listarPorCategoria() (Te explico abajo cómo crear este método)
+            productos = productoService.listarPorCategoria(categoriaId);
+        } else {
+            // Si no seleccionó nada, traemos todos
+            productos = productoService.listar();
+        }
+
+        // 2. Asignar el integrante aleatorio (tu lógica original intacta)
         productos.forEach(this::asignarIntegranteSeleccionado);
+        
+        // 3. Pasar los datos a la vista
         model.addAttribute("productos", productos);
+        
+        // --- ESTO ES NUEVO Y MUY IMPORTANTE ---
+        // Necesitamos pasar TODAS las categorías para que el <select> del HTML se llene.
+        model.addAttribute("categorias", categoriaService.listar()); 
+        // -------------------------------------
+
         return "/carpetaProductos/paginaProductos";
     }
 
